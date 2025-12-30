@@ -1,500 +1,398 @@
 # Agentic Platform
 
-A powerful, extensible autonomous AI agent framework for building intelligent agents capable of executing complex tasks through natural language interaction.
+A powerful, extensible AI agent framework for building intelligent agents with a beautiful web interface.
 
-## Overview
-
-The Agentic Platform provides a complete framework for developing AI agents that can:
-
-- **Execute Complex Tasks**: Break down and accomplish multi-step objectives autonomously
-- **Use Tools Dynamically**: Access and utilize various tools including file operations, web search, Python execution, and more
-- **Support Multiple LLM Providers**: Compatible with OpenAI, Azure OpenAI, and AWS Bedrock
-- **Maintain Conversation Context**: Intelligent memory management for coherent long-running tasks
-- **Extensible Architecture**: Easy to add custom tools and extend functionality
-
-## Key Features
-
-### 🤖 Specialized Agent System
-- **Platform Agent**: General-purpose with all tools
-- **Browser Agent**: Web automation and scraping specialist
-- **Data Analysis Agent**: Data visualization expert
-- **MCP Agent**: External tool integration via Model Context Protocol
-- **FullStack Ship Agent**: Complete SaaS builder (Next.js + Supabase + Stripe)
-- Multi-step reasoning and execution
-- Automatic tool selection and usage
-- Stuck detection and recovery
-- Configurable execution limits
-
-### 🛠️ Built-in Tools
-- **File Operations**: Read, write, and list files in workspace
-- **Python Execution**: Run Python code safely
-- **Web Search**: Search the internet using DuckDuckGo
-- **Time/Date**: Get current timestamp
-- **Extensible**: Easy to add custom tools
-
-### 🔌 LLM Provider Support
-- OpenAI (GPT-4o, GPT-4-turbo, GPT-3.5-turbo)
-- Azure OpenAI
-- AWS Bedrock (Claude models)
-- Custom endpoints
-
-### 📊 Advanced Features
-- Token counting and management
-- Conversation memory with automatic pruning
-- Async/await architecture for performance
-- Comprehensive logging
-- Sandbox execution support (optional)
-
-## 🌐 Web UI - Lovable-Inspired Interface
-
-The Agentic Platform includes a beautiful web interface for interacting with all agents visually!
-
-**Quick Start with Web UI:**
-
-```bash
-# Install minimal dependencies
-pip install -r requirements-minimal.txt
-
-# Set your API key
-export OPENAI_API_KEY=sk-...
-
-# Start the web server
-python web_server.py
-```
-
-Then open http://localhost:8000 in your browser!
-
-**Features:**
-- 🎨 Modern gradient UI with smooth animations
-- 🤖 Select from 5 specialized agents
-- 💬 Real-time WebSocket streaming
-- 📝 Session history and management
-- 📱 Fully responsive design
-
-See [WEB_UI_DEPLOYMENT.md](WEB_UI_DEPLOYMENT.md) for full deployment guide.
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](docs/LICENSE)
 
 ---
 
-## Quick Start (CLI Mode)
-
-### Prerequisites
-
-- Python 3.11, 3.12, or 3.13
-- OpenAI API key (or other LLM provider credentials)
-- `uv` package manager (recommended) or `pip`
-
-### Installation
-
-#### Using uv (Recommended)
+## 🚀 Quick Start
 
 ```bash
-# Install uv if you don't have it
-pip install uv
+# 1. Install dependencies
+pip install -r requirements-minimal.txt
 
-# Clone the repository
-git clone https://github.com/yourusername/agentic-platform.git
-cd agentic-platform
+# 2. Set your OpenAI API key
+export OPENAI_API_KEY=sk-your-key-here
 
-# Install dependencies
-uv pip install -r requirements.txt
+# 3. Start the web UI
+python web_server.py
 
-# Or install in a virtual environment
-uv venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-uv pip install -r requirements.txt
+# 4. Open http://localhost:8000
 ```
 
-#### Using pip
+**That's it!** You now have a beautiful interface to interact with AI agents.
 
+See [QUICKSTART.md](QUICKSTART.md) for detailed local setup.
+
+---
+
+## ✨ What Is This?
+
+The Agentic Platform is a complete framework for building autonomous AI agents that can:
+
+- 🤖 **Execute complex tasks** autonomously
+- 🛠️ **Use tools dynamically** (file operations, web search, browser automation, etc.)
+- 🌐 **Beautiful web interface** inspired by Lovable/Replit
+- 🎨 **Build SaaS apps** with modern UIs (Tailwind, shadcn/ui, gradients)
+- 🔌 **Multiple LLM providers** (OpenAI, Azure, AWS Bedrock)
+- 📊 **Data visualization** and analysis
+- 🧪 **Automated testing** and validation
+
+---
+
+## 🎨 Web UI
+
+<div align="center">
+  <img src="https://via.placeholder.com/800x400/667eea/ffffff?text=Beautiful+Gradient+UI+%E2%80%A2+Real-time+Updates+%E2%80%A2+6+Specialized+Agents" alt="Web UI Preview" />
+</div>
+
+**Features:**
+- 🎨 Modern gradient UI with glassmorphism
+- 💬 Real-time WebSocket streaming
+- 🤖 6 specialized agents
+- 📝 Session history
+- 📱 Fully responsive
+
+**Start it:**
 ```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
+python web_server.py
+# Open http://localhost:8000
 ```
 
-### Configuration
+---
 
-1. Create your configuration file:
+## 🤖 Available Agents
 
-```bash
-cp config/config.example.toml config/config.toml
-```
+| Agent | Purpose | Use Case | Icon |
+|-------|---------|----------|------|
+| **Platform Agent** | General-purpose | File ops, search, Python code | 🤖 |
+| **Browser Agent** | Web automation | Scraping, form filling, clicking | 🌐 |
+| **Data Agent** | Data analysis | Charts, CSV analysis, visualization | 📊 |
+| **MCP Agent** | External tools | API integrations via MCP | 🔌 |
+| **Ship Agent** | SaaS builder | Build complete apps with beautiful UIs | 🚀 |
+| **Test Agent** | Validation | Check all components work | 🧪 |
 
-2. Edit `config/config.toml` and add your API key:
+---
 
-```toml
-[llm]
-model = "gpt-4o"
-api_key = "your-api-key-here"  # Or set OPENAI_API_KEY env variable
-api_type = "openai"
-temperature = 0.7
-max_tokens = 4096
-```
+## 📚 Documentation
 
-Alternatively, set environment variables:
+### Getting Started
+- [Quick Start Guide](QUICKSTART.md) - Get running in 5 minutes
+- [Installation Guide](docs/guides/INSTALLATION.md) - Detailed installation options
+- [Contributing Guide](docs/guides/CONTRIBUTING.md) - How to contribute
 
-```bash
-export OPENAI_API_KEY="your-api-key-here"
-```
+### Deployment
+- [AWS Quick Start](docs/deployment/AWS_QUICK_START.md) - Deploy to AWS in 10 minutes
+- [AWS Full Guide](docs/deployment/AWS_DEPLOYMENT.md) - Complete AWS deployment
+- [Web UI Deployment](docs/deployment/WEB_UI_DEPLOYMENT.md) - Deploy the web interface
 
-### Running the Agent
+### Guides
+- [FullStack Ship Agent](docs/guides/FULLSTACK_SHIP_GUIDE.md) - Build SaaS apps
 
-#### Interactive Mode
+---
 
+## 💻 CLI Usage
+
+### Interactive Mode
 ```bash
 # Default platform agent
 python main.py
 
-# Specific agent type
-python main.py --agent browser  # For web automation
-python main.py --agent data     # For data analysis
-python main.py --agent mcp      # For external tools
-python main.py --agent ship     # For SaaS building
+# Specific agent
+python main.py --agent ship
+python main.py --agent test
 ```
 
-Then enter your task when prompted.
-
-#### Command Line Mode
-
+### One-Line Commands
 ```bash
-# Platform agent
-python main.py --prompt "Create a file called hello.txt with the text 'Hello World' and read it back"
+# General task
+python main.py --prompt "Search for AI news and summarize"
 
-# Browser agent
-python main.py --agent browser --prompt "Go to example.com and extract all links"
+# Web scraping
+python main.py --agent browser --prompt "Scrape HN top posts"
 
-# Data analysis agent
-python main.py --agent data --prompt "Create a bar chart of sales data"
+# Data analysis
+python main.py --agent data --prompt "Create a sales chart"
 
-# FullStack Ship agent
-python main.py --agent ship --prompt "Build a SaaS app for task management"
+# Build a SaaS
+python main.py --agent ship --prompt "Build a todo app"
+
+# Run tests
+python main.py --agent test --prompt "Validate all components"
 ```
 
-#### Python API
-
+### Python API
 ```python
 import asyncio
-from app.agent.platform import PlatformAgent
+from app.agent import PlatformAgent
 
 async def main():
-    # Create agent
-    agent = await PlatformAgent.create(
-        name="MyAgent",
-        max_steps=20
-    )
-
-    # Run task
-    response = await agent.run("What is the current time?")
+    agent = await PlatformAgent.create(max_steps=20)
+    response = await agent.run("Your task here")
     print(response)
-
-    # Cleanup
     await agent.cleanup()
 
 asyncio.run(main())
 ```
 
-## Architecture
+---
 
-### Project Structure
+## 🏗️ Project Structure
 
 ```
 agentic-platform/
-├── app/
-│   ├── agent/           # Agent implementations
-│   │   ├── base.py      # Base agent class
-│   │   └── platform.py  # Main platform agent
-│   ├── tools/           # Tool system
-│   │   ├── base.py      # Tool base classes
-│   │   ├── builtin.py   # Built-in tools
-│   │   └── collection.py # Tool management
-│   ├── config.py        # Configuration management
-│   ├── llm.py          # LLM integration
-│   ├── schema.py       # Data models
-│   ├── logger.py       # Logging setup
-│   └── exceptions.py   # Custom exceptions
-├── config/
-│   └── config.example.toml  # Configuration template
-├── examples/           # Example scripts
-├── workspace/          # Agent workspace (auto-created)
-├── main.py            # Main entry point
-├── requirements.txt   # Dependencies
-└── README.md         # This file
+├── README.md                   # This file
+├── QUICKSTART.md              # Quick start guide
+├── main.py                    # CLI entry point
+├── web_server.py              # Web UI server
+│
+├── docs/                      # Documentation
+│   ├── deployment/           # Deployment guides
+│   │   ├── AWS_DEPLOYMENT.md
+│   │   ├── AWS_QUICK_START.md
+│   │   └── WEB_UI_DEPLOYMENT.md
+│   ├── guides/              # User guides
+│   │   ├── INSTALLATION.md
+│   │   ├── FULLSTACK_SHIP_GUIDE.md
+│   │   └── CONTRIBUTING.md
+│   └── LICENSE
+│
+├── app/                       # Application code
+│   ├── agent/                # Agent implementations
+│   │   ├── platform.py      # General-purpose agent
+│   │   ├── browser.py       # Browser automation
+│   │   ├── data_analysis.py # Data visualization
+│   │   ├── mcp.py          # External tool integration
+│   │   ├── fullstack_ship.py # SaaS builder
+│   │   └── test.py         # Testing & validation
+│   ├── tools/               # Tool implementations
+│   ├── llm.py              # LLM integration
+│   └── config.py           # Configuration
+│
+├── ui/                       # Web UI files
+│   ├── index.html
+│   └── assets/
+│       ├── css/
+│       └── js/
+│
+├── config/                   # Configuration files
+├── tests/                    # Test suite
+└── workspace/               # Agent workspace
 ```
 
-### Core Components
+---
 
-#### Agent System
-- **BaseAgent**: Abstract base class providing core agent functionality
-- **PlatformAgent**: Main implementation with tool calling capabilities
-- Async execution model
-- State management and error handling
+## 🛠️ Built-in Tools
 
-#### Tool System
-- **Tool**: Base class for all tools
-- **ToolCollection**: Manages available tools
-- **Built-in Tools**: File ops, Python execution, web search, etc.
-- Easy extension with custom tools
+### File Operations
+- `file_read` - Read files
+- `file_write` - Write files
+- `file_list` - List directories
 
-#### LLM Integration
-- Multi-provider support (OpenAI, Azure, Bedrock)
-- Token counting and management
-- Retry logic with exponential backoff
-- Streaming support
+### Code Execution
+- `python_execute` - Run Python code safely
 
-## Configuration Options
+### Web & Search
+- `web_search` - Search the internet
+- `browser_use` - Browser automation
+- `web_crawl` - Extract web content
 
-### LLM Settings
+### Data & Visualization
+- `data_visualization` - Create charts
+- `data_prepare` - Prepare data for analysis
 
+### SaaS Building
+- `supabase_*` - Database setup and schema
+- `stripe_*` - Payment integration
+- `deploy_*` - Deployment automation
+
+### Testing
+- `test_llm_connection` - Validate LLM API
+- `test_database` - Check database connectivity
+- `health_check` - System diagnostics
+
+---
+
+## ⚙️ Configuration
+
+### Environment Variables
+```bash
+# Required
+export OPENAI_API_KEY=sk-...
+
+# Optional
+export OPENAI_MODEL=gpt-4o-mini
+export SUPABASE_URL=https://...
+export STRIPE_SECRET_KEY=sk_test_...
+```
+
+### Config File
+Create `config/config.toml`:
 ```toml
 [llm]
-model = "gpt-4o"              # LLM model to use
-api_type = "openai"            # openai, azure, or bedrock
-api_key = "your-key"           # API key
-temperature = 0.7              # Sampling temperature
-max_tokens = 4096              # Maximum tokens per request
-timeout = 120                  # Request timeout in seconds
-max_retries = 3                # Maximum retry attempts
-```
+model = "gpt-4o-mini"
+temperature = 0.7
+max_tokens = 4096
 
-### Platform Settings
-
-```toml
 [platform]
-workspace_dir = "./workspace"   # Agent workspace directory
-log_level = "INFO"             # DEBUG, INFO, WARNING, ERROR
-max_agent_steps = 20           # Maximum steps per task
-enable_human_feedback = true   # Enable human-in-the-loop
+max_agent_steps = 20
+workspace_dir = "./workspace"
+log_level = "INFO"
 ```
 
-### Browser Settings (Optional)
+---
 
-```toml
-[browser]
-headless = true
-disable_security = false
-# chrome_instance_path = "/path/to/chrome"
-```
+## 🎯 Example Tasks
 
-### Search Settings
-
-```toml
-[search]
-engine = "duckduckgo"
-fallback_engines = ["duckduckgo"]
-language = "en"
-country = "us"
-```
-
-## Examples
-
-### Example 1: File Operations
-
-```python
-import asyncio
-from app.agent.platform import PlatformAgent
-
-async def main():
-    agent = await PlatformAgent.create()
-
-    response = await agent.run(
-        "Create a Python script that prints 'Hello World' and save it as hello.py"
-    )
-
-    print(response)
-    await agent.cleanup()
-
-asyncio.run(main())
-```
-
-### Example 2: Web Search and Analysis
-
-```python
-import asyncio
-from app.agent.platform import PlatformAgent
-
-async def main():
-    agent = await PlatformAgent.create(max_steps=15)
-
-    response = await agent.run(
-        "Search for the latest news about AI and summarize the top 3 results"
-    )
-
-    print(response)
-    await agent.cleanup()
-
-asyncio.run(main())
-```
-
-### Example 3: Data Processing
-
-```python
-import asyncio
-from app.agent.platform import PlatformAgent
-
-async def main():
-    agent = await PlatformAgent.create()
-
-    response = await agent.run(
-        "Calculate the first 10 Fibonacci numbers and save them to fibonacci.txt"
-    )
-
-    print(response)
-    await agent.cleanup()
-
-asyncio.run(main())
-```
-
-## Creating Custom Tools
-
-You can easily extend the platform with custom tools:
-
-```python
-from app.tools.base import Tool
-from typing import Any
-
-class MyCustomTool(Tool):
-    name: str = "my_custom_tool"
-    description: str = "Description of what this tool does"
-    parameters: dict[str, Any] = {
-        "type": "object",
-        "properties": {
-            "param1": {
-                "type": "string",
-                "description": "First parameter"
-            }
-        },
-        "required": ["param1"]
-    }
-
-    async def execute(self, param1: str) -> str:
-        # Your tool logic here
-        result = f"Processed: {param1}"
-        return result
-
-# Register the tool
-from app.tools.collection import get_tool_collection
-tool_collection = get_tool_collection()
-tool_collection.add_tool(MyCustomTool())
-```
-
-## Deployment
-
-### Docker Deployment
-
+### Beginner
 ```bash
-# Build the image
+# File operations
+python main.py --prompt "List all Python files"
+
+# Web search
+python main.py --prompt "Search for Python news"
+
+# Current time
+python main.py --prompt "What time is it?"
+```
+
+### Intermediate
+```bash
+# Web scraping
+python main.py --agent browser --prompt "Get top HN posts"
+
+# Data analysis
+python main.py --agent data --prompt "Create sample sales chart"
+
+# Code generation
+python main.py --prompt "Create a fibonacci calculator"
+```
+
+### Advanced
+```bash
+# Build a complete SaaS app
+python main.py --agent ship --prompt "Build a project management SaaS with Stripe subscriptions"
+
+# System validation
+python main.py --agent test --prompt "Run comprehensive health check and validate all integrations"
+```
+
+---
+
+## 🚀 Deployment
+
+### Local Development
+```bash
+pip install -r requirements-minimal.txt
+python web_server.py
+```
+
+### Docker
+```bash
 docker build -t agentic-platform .
-
-# Run with environment variables
-docker run -it \
-  -e OPENAI_API_KEY=your-key \
-  -v $(pwd)/workspace:/app/workspace \
-  agentic-platform
+docker run -p 8000:8000 -e OPENAI_API_KEY=sk-... agentic-platform
 ```
 
-Or using docker-compose:
-
+### AWS (Quick)
 ```bash
-# Set environment variables in .env file
-echo "OPENAI_API_KEY=your-key" > .env
-
-# Run
-docker-compose up
+# See docs/deployment/AWS_QUICK_START.md
+aws ec2 run-instances ...
 ```
 
-### AWS Deployment
+See [deployment guides](docs/deployment/) for complete instructions.
 
-See [AWS_DEPLOYMENT.md](AWS_DEPLOYMENT.md) for detailed instructions on deploying to AWS ECS, EC2, or Lambda.
+---
 
-## Development
-
-### Running Tests
+## 🧪 Testing
 
 ```bash
-# Install dev dependencies
-pip install pytest pytest-asyncio
-
 # Run tests
 pytest tests/
+
+# Test specific component
+python main.py --agent test --prompt "Test LLM connection"
+
+# Full health check
+python main.py --agent test --prompt "Run comprehensive health check"
 ```
 
-### Code Quality
+---
 
-```bash
-# Install dev tools
-pip install black ruff
+## 🤝 Contributing
 
-# Format code
-black app/ main.py
+We welcome contributions! See [CONTRIBUTING.md](docs/guides/CONTRIBUTING.md) for:
+- Code style guidelines
+- How to add new agents
+- How to add new tools
+- Submitting pull requests
 
-# Lint code
-ruff check app/ main.py
-```
+---
 
-## Troubleshooting
+## 📊 Dependencies
 
-### Common Issues
+**Minimal (for web UI):**
+- Python 3.11+
+- FastAPI & Uvicorn
+- OpenAI SDK
+- Pydantic
 
-**Import Errors**
-```bash
-# Make sure you're in the project root and have installed dependencies
-pip install -r requirements.txt
-```
+**Full (all features):**
+- Browser automation: Playwright, Selenium
+- Data analysis: Pandas, Matplotlib, Plotly
+- See `requirements.txt` for complete list
 
-**API Key Issues**
-```bash
-# Verify your API key is set
-echo $OPENAI_API_KEY
+---
 
-# Or check config/config.toml
-```
+## 🔒 Security
 
-**Permission Errors**
-```bash
-# Ensure workspace directory is writable
-chmod 755 workspace/
-```
+- Code execution in restricted sandbox
+- File operations limited to workspace
+- Environment variable-based secrets
+- Row Level Security for databases
+- Webhook signature verification
 
-## Performance Tips
+See deployment guides for production security.
 
-1. **Token Management**: Monitor token usage and adjust `max_tokens` in config
-2. **Step Limits**: Set appropriate `max_steps` for your tasks (default: 20)
-3. **Memory Limits**: The system auto-prunes conversation history to stay within limits
-4. **Async Operations**: Use async/await for concurrent operations
+---
 
-## Security Considerations
+## 📖 Learn More
 
-- The platform runs code in a restricted environment
-- File operations are limited to the workspace directory
-- Bash execution is disabled by default
-- Review and audit custom tools before deployment
-- Use environment variables for sensitive credentials
-- Never commit API keys to version control
+- **Architecture**: How agents work internally
+- **Tools**: Built-in and custom tool development
+- **LLM Providers**: OpenAI, Azure, Bedrock setup
+- **Advanced Topics**: Memory management, error handling
 
-## License
+---
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## 📝 License
 
-## Contributing
+This project is licensed under the MIT License - see [LICENSE](docs/LICENSE) for details.
 
-Contributions are welcome! Please:
+---
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+## 🙏 Acknowledgments
 
-## Support
+- Inspired by OpenManus, Lovable, Replit Agent, and the broader AI community
+- Built with modern Python best practices
+- Designed for extensibility and production use
 
-For issues, questions, or contributions:
-- Open an issue on GitHub
-- Check existing documentation
-- Review examples in the `examples/` directory
+---
 
-## Acknowledgments
+## 🆘 Support
 
-This project draws inspiration from various open-source AI agent frameworks and the broader AI community. Built with modern Python best practices and designed for extensibility and production use.
+- **Documentation**: Check the [docs](docs/) folder
+- **Quick Start**: [QUICKSTART.md](QUICKSTART.md)
+- **Issues**: Open a GitHub issue
+- **Guides**: See [docs/guides/](docs/guides/)
+
+---
+
+<div align="center">
+
+**Built with ❤️ by the Agentic Platform Team**
+
+[Quick Start](QUICKSTART.md) • [Deployment](docs/deployment/) • [Guides](docs/guides/) • [Contributing](docs/guides/CONTRIBUTING.md)
+
+</div>
