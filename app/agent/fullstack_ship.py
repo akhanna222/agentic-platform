@@ -29,6 +29,12 @@ from app.tools.deployment import (
     GenerateEnvFileTool,
 )
 from app.tools.builtin import FileWriteTool, FileReadTool, FileListTool
+from app.tools.env_config import (
+    RequestEnvVariableTool,
+    SaveEnvVariableTool,
+    ListEnvVariablesTool,
+    ClearEnvVariableTool,
+)
 
 
 FULLSTACK_SHIP_SYSTEM_PROMPT = """You are a FullStack Ship Agent - an expert at building and deploying complete SaaS applications with BEAUTIFUL, MODERN UIs.
@@ -134,14 +140,19 @@ Your mission: Build a production-ready SaaS app following the Lovable/Replit/Bas
 1. Use `supabase_setup_guide` - Give step-by-step instructions for user to:
    - Create project in Supabase dashboard
    - Get API keys
-   - Save keys to .env file
 
-2. Once user says "I've created my Supabase project":
+2. **Collect API Keys Interactively**:
+   - Use `request_env_variable` to ask for SUPABASE_URL
+   - Use `request_env_variable` to ask for SUPABASE_KEY
+   - When user provides values, use `save_env_variable` to save them
+   - This saves to .env file automatically with validation!
+
+3. Once user has configured Supabase:
    - Use `supabase_schema_guide` - Generate SQL schema
    - Show user how to run SQL in Supabase SQL Editor
    - Wait for user confirmation tables are created
 
-3. Use `supabase_auth_guide` - Guide user to:
+4. Use `supabase_auth_guide` - Guide user to:
    - Configure auth providers in dashboard
    - Set up email templates
    - Test authentication
@@ -149,8 +160,13 @@ Your mission: Build a production-ready SaaS app following the Lovable/Replit/Bas
 **YOU GENERATE CODE, USER RUNS IT IN THEIR DASHBOARD**
 
 ### Phase 3: Set Up Stripe (Payments)
-1. Guide user to get Stripe keys
-2. Help create products and subscription prices
+1. **Collect Stripe Keys Interactively**:
+   - Use `request_env_variable` to ask for STRIPE_SECRET_KEY
+   - Use `request_env_variable` to ask for STRIPE_PUBLISHABLE_KEY (optional)
+   - When user provides values, use `save_env_variable` to save them
+   - This saves to .env file with validation!
+
+2. Help create products and subscription prices (guide user in Stripe dashboard)
 3. Generate Checkout Session endpoint code
 4. Generate Webhook handler code for subscription sync
 5. Explain webhook setup in Stripe dashboard
@@ -187,12 +203,16 @@ Your mission: Build a production-ready SaaS app following the Lovable/Replit/Bas
 - Guide step-by-step with checkboxes
 
 ## Tools Available:
-- supabase_project: Set up Supabase project
-- supabase_create_schema: Generate database migrations
-- supabase_enable_auth: Configure authentication
+- supabase_setup_guide: Guide user through Supabase setup
+- supabase_schema_guide: Generate SQL schema for user to run
+- supabase_auth_guide: Guide auth configuration
 - stripe_setup: Create Stripe products/prices
 - stripe_checkout_code: Generate checkout endpoint
 - stripe_webhook_code: Generate webhook handler
+- request_env_variable: Ask user for environment variable
+- save_env_variable: Save user-provided env variable to .env
+- list_env_variables: Show configured environment variables
+- clear_env_variable: Remove an environment variable
 - replit_deploy / vercel_deploy: Deployment guides
 - generate_env_file: Create .env templates
 - file_write: Create code files
@@ -253,6 +273,12 @@ class FullStackShipAgent(ToolCallAgent):
             data["tool_collection"].add_tool(FileWriteTool())
             data["tool_collection"].add_tool(FileReadTool())
             data["tool_collection"].add_tool(FileListTool())
+
+            # Environment variable tools
+            data["tool_collection"].add_tool(RequestEnvVariableTool())
+            data["tool_collection"].add_tool(SaveEnvVariableTool())
+            data["tool_collection"].add_tool(ListEnvVariablesTool())
+            data["tool_collection"].add_tool(ClearEnvVariableTool())
 
             # Control tools
             data["tool_collection"].add_tool(AskHumanTool())

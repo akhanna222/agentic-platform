@@ -16,6 +16,12 @@ from app.tools.visualization import (
     NormalPythonExecuteTool,
 )
 from app.tools.control import TerminateTool, AskHumanTool
+from app.tools.env_config import (
+    RequestEnvVariableTool,
+    SaveEnvVariableTool,
+    ListEnvVariablesTool,
+    ClearEnvVariableTool,
+)
 
 __all__ = [
     "Tool",
@@ -39,6 +45,11 @@ __all__ = [
     # Control tools
     "TerminateTool",
     "AskHumanTool",
+    # Environment variable tools
+    "RequestEnvVariableTool",
+    "SaveEnvVariableTool",
+    "ListEnvVariablesTool",
+    "ClearEnvVariableTool",
 ]
 
 
@@ -62,6 +73,11 @@ def get_all_tools() -> list[Tool]:
             DataVisualizationTool(),
             VisualizationPrepareTool(),
             NormalPythonExecuteTool(),
+            # Environment variable management
+            RequestEnvVariableTool(),
+            SaveEnvVariableTool(),
+            ListEnvVariablesTool(),
+            ClearEnvVariableTool(),
             # Control
             TerminateTool(),
             AskHumanTool(),
