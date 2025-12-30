@@ -9,6 +9,16 @@ A powerful, extensible AI agent framework for building intelligent agents with a
 
 ## 🚀 Quick Start
 
+**Easiest way (Interactive Setup):**
+
+```bash
+python start.py
+```
+
+This will guide you through setup, test your connection, and start the platform!
+
+**Or manual setup:**
+
 ```bash
 # 1. Install dependencies
 pip install -r requirements-minimal.txt
@@ -24,7 +34,7 @@ python web_server.py
 
 **That's it!** You now have a beautiful interface to interact with AI agents.
 
-See [QUICKSTART.md](QUICKSTART.md) for detailed local setup.
+See [QUICKSTART.md](QUICKSTART.md) for all setup options.
 
 ---
 

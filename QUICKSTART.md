@@ -1,6 +1,6 @@
 # Quick Start - Run Locally in 5 Minutes
 
-Get the Agentic Platform running on your local machine with either the **Web UI** (easiest) or **CLI**.
+Get the Agentic Platform running on your local machine with either the **Interactive Setup** (easiest), **Web UI**, or **CLI**.
 
 ## Prerequisites
 
@@ -9,7 +9,27 @@ Get the Agentic Platform running on your local machine with either the **Web UI*
 
 ---
 
-## 🎨 Option 1: Web UI (Recommended)
+## ⭐ Option 1: Interactive Setup (Easiest!)
+
+**One command to set up everything:**
+
+```bash
+python start.py
+```
+
+This interactive script will:
+- ✅ Check your Python version
+- ✅ Install dependencies automatically
+- ✅ Ask for your OpenAI API key
+- ✅ Save configuration to .env file
+- ✅ Test the connection
+- ✅ Give you a menu to start Web UI or CLI
+
+**Perfect for beginners!** Just run it and follow the prompts.
+
+---
+
+## 🎨 Option 2: Web UI (Manual Setup)
 
 The easiest way - beautiful interface with real-time updates.
 
@@ -65,7 +85,7 @@ Create a Python script that prints Hello World
 
 ---
 
-## 💻 Option 2: Command Line (For Developers)
+## 💻 Option 3: Command Line (For Developers)
 
 For those who prefer the terminal.
 
