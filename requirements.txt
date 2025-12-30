@@ -8,19 +8,60 @@ tiktoken~=0.9.0
 # LLM Providers
 boto3~=1.37.0  # AWS Bedrock support
 
-# Tools and utilities
+# Browser automation and web tools
+playwright~=1.51.0
+browser-use~=0.1.40
+crawl4ai~=0.6.3
+selenium~=4.27.0
+
+# Web search and scraping
 duckduckgo_search~=7.5.0
+googlesearch-python~=1.3.0
+baidusearch~=1.0.3
 requests~=2.32.0
 beautifulsoup4~=4.13.0
+html2text~=2024.2.26
+
+# Data analysis and visualization
+numpy~=2.2.1
+pandas~=2.2.3
+matplotlib~=3.9.3
+seaborn~=0.13.2
+plotly~=5.24.1
+datasets~=3.4.1
+
+# MCP (Model Context Protocol)
+mcp~=1.5.0
+httpx>=0.27.0
+sse-starlette~=2.2.1
+
+# Async and file operations
 aiofiles~=24.1.0
+aiohttp~=3.11.11
 
-# Configuration
+# Computer use and desktop automation
+pyautogui~=0.9.54
+pillow~=11.1.0
+
+# Sandbox and containerization
+docker~=7.1.0
+gymnasium~=1.1.1
+
+# Configuration and utilities
 tomli>=2.0.0; python_version < "3.11"
+pyyaml~=6.0.2
+colorama~=0.4.6
+unidiff~=0.7.5
 
-# Optional dependencies
-# playwright~=1.51.0  # For browser automation
-# docker~=7.1.0  # For sandbox execution
+# FastAPI for MCP servers
+fastapi~=0.115.11
+uvicorn~=0.34.0
 
-# Development dependencies
-pytest~=8.3.0
-pytest-asyncio~=0.25.0
+# Testing and development
+pytest~=8.3.5
+pytest-asyncio~=0.25.3
+pytest-cov~=6.0.0
+
+# Code quality (optional, for development)
+black~=24.10.0
+ruff~=0.8.4

@@ -7,16 +7,47 @@ import asyncio
 
 from loguru import logger
 
-from app.agent.platform import PlatformAgent
+from app.agent import PlatformAgent, BrowserAgent, DataAnalysisAgent, MCPAgent
+
+
+# Available agent types
+AGENT_TYPES = {
+    "platform": PlatformAgent,
+    "browser": BrowserAgent,
+    "data": DataAnalysisAgent,
+    "mcp": MCPAgent,
+}
 
 
 async def main():
     """Main execution function"""
-    parser = argparse.ArgumentParser(description="Agentic Platform - Autonomous AI Agent")
+    parser = argparse.ArgumentParser(
+        description="Agentic Platform - Autonomous AI Agent Framework",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Agent Types:
+  platform      General-purpose agent with all tools (default)
+  browser       Specialized browser automation agent
+  data          Data analysis and visualization agent
+  mcp           Agent with Model Context Protocol support
+
+Examples:
+  python main.py --prompt "Search for Python news"
+  python main.py --agent browser --prompt "Go to google.com and search for AI"
+  python main.py --agent data --prompt "Analyze data.csv and create visualizations"
+        """,
+    )
     parser.add_argument(
         "--prompt",
         type=str,
         help="Task prompt for the agent",
+    )
+    parser.add_argument(
+        "--agent",
+        type=str,
+        default="platform",
+        choices=list(AGENT_TYPES.keys()),
+        help="Type of agent to use (default: platform)",
     )
     parser.add_argument(
         "--max-steps",
@@ -27,27 +58,36 @@ async def main():
     parser.add_argument(
         "--name",
         type=str,
-        default="PlatformAgent",
-        help="Agent name",
+        help="Custom agent name (optional)",
     )
 
     args = parser.parse_args()
 
     try:
+        # Get agent class
+        agent_class = AGENT_TYPES[args.agent]
+
         # Create agent
-        logger.info("Initializing agent...")
-        agent = await PlatformAgent.create(
-            name=args.name,
-            max_steps=args.max_steps,
-        )
+        logger.info(f"Initializing {args.agent} agent...")
+
+        agent_kwargs = {"max_steps": args.max_steps}
+        if args.name:
+            agent_kwargs["name"] = args.name
+
+        agent = await agent_class.create(**agent_kwargs)
 
         # Get prompt
         if args.prompt:
             prompt = args.prompt
         else:
-            print("\n" + "=" * 60)
-            print("Agentic Platform - Autonomous AI Agent")
-            print("=" * 60)
+            print("\n" + "=" * 70)
+            print(" " * 15 + "AGENTIC PLATFORM - AI Agent Framework")
+            print("=" * 70)
+            print(f"\nAgent Type: {args.agent.upper()}")
+            print(f"Agent Name: {agent.name}")
+            print(f"Max Steps: {args.max_steps}")
+            print(f"Available Tools: {len(agent.tool_collection.tools)}")
+            print("\n" + "-" * 70)
             prompt = input("\nEnter your task: ").strip()
 
         if not prompt:
@@ -56,17 +96,22 @@ async def main():
             return
 
         # Run agent
-        logger.info(f"Starting task: {prompt}")
-        print("\nAgent is working...\n")
+        logger.info(f"Starting task with {args.agent} agent: {prompt}")
+        print("\n" + "=" * 70)
+        print("AGENT IS WORKING...")
+        print("=" * 70 + "\n")
 
         response = await agent.run(prompt)
 
         # Print final response
-        print("\n" + "=" * 60)
-        print("FINAL RESPONSE")
-        print("=" * 60)
+        print("\n" + "=" * 70)
+        print(" " * 25 + "FINAL RESPONSE")
+        print("=" * 70)
         print(response)
-        print("=" * 60 + "\n")
+        print("=" * 70)
+        print(f"\nSteps used: {agent.current_step}/{args.max_steps}")
+        print(f"Agent state: {agent.state.value}")
+        print("=" * 70 + "\n")
 
         logger.info("Task completed")
 
@@ -76,6 +121,9 @@ async def main():
     except Exception as e:
         logger.error(f"Error: {str(e)}")
         print(f"\nError: {str(e)}")
+        import traceback
+
+        traceback.print_exc()
     finally:
         # Cleanup
         if "agent" in locals():
