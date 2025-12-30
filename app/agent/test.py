@@ -6,7 +6,8 @@ from typing import Any
 from pydantic import Field
 
 from app.agent.toolcall import ToolCallAgent
-from app.tools.base import Tool, ToolCollection
+from app.tools.base import Tool
+from app.tools.collection import ToolCollection
 
 
 TEST_AGENT_SYSTEM_PROMPT = """You are a Testing and Validation Agent specialized in:
