@@ -13,6 +13,11 @@ from app.tools.supabase import (
     SupabaseCreateSchemaTool,
     SupabaseEnableAuthTool,
 )
+from app.tools.supabase_guided import (
+    SupabaseSetupGuideTool,
+    SupabaseSchemaGuideTool,
+    SupabaseAuthGuideTool,
+)
 from app.tools.stripe_tools import (
     StripeSetupTool,
     StripeCheckoutCodeTool,
@@ -123,15 +128,25 @@ Your mission: Build a production-ready SaaS app following the Lovable/Replit/Bas
 - Clarify features, pricing, and goals
 - Confirm the stack choices
 
-### Phase 2: Set Up Supabase (Database + Auth)
-1. Guide user to create Supabase project
-2. Generate database schema with migrations:
-   - profiles table (user metadata)
-   - subscriptions table (Stripe sync)
-   - products/prices tables (optional)
-   - entitlements table (feature flags)
-3. Enable Row Level Security (RLS) with policies
-4. Configure authentication (email, magic link, OAuth)
+### Phase 2: Guide Supabase Setup (USER CONFIGURES)
+**IMPORTANT**: The USER configures Supabase in their browser - you provide guidance!
+
+1. Use `supabase_setup_guide` - Give step-by-step instructions for user to:
+   - Create project in Supabase dashboard
+   - Get API keys
+   - Save keys to .env file
+
+2. Once user says "I've created my Supabase project":
+   - Use `supabase_schema_guide` - Generate SQL schema
+   - Show user how to run SQL in Supabase SQL Editor
+   - Wait for user confirmation tables are created
+
+3. Use `supabase_auth_guide` - Guide user to:
+   - Configure auth providers in dashboard
+   - Set up email templates
+   - Test authentication
+
+**YOU GENERATE CODE, USER RUNS IT IN THEIR DASHBOARD**
 
 ### Phase 3: Set Up Stripe (Payments)
 1. Guide user to get Stripe keys
@@ -214,7 +229,12 @@ class FullStackShipAgent(ToolCallAgent):
         if "tool_collection" not in data:
             data["tool_collection"] = ToolCollection()
 
-            # Supabase tools
+            # Supabase guided tools (user-driven setup)
+            data["tool_collection"].add_tool(SupabaseSetupGuideTool())
+            data["tool_collection"].add_tool(SupabaseSchemaGuideTool())
+            data["tool_collection"].add_tool(SupabaseAuthGuideTool())
+
+            # Supabase legacy tools (for backwards compatibility)
             data["tool_collection"].add_tool(SupabaseProjectTool())
             data["tool_collection"].add_tool(SupabaseCreateSchemaTool())
             data["tool_collection"].add_tool(SupabaseEnableAuthTool())
