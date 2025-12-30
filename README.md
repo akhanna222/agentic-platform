@@ -9,13 +9,24 @@ A powerful, extensible AI agent framework for building intelligent agents with a
 
 ## 🚀 Quick Start
 
-**Easiest way (Interactive Setup):**
+**Complete Setup (From Zero to Running):**
 
 ```bash
+# Clone the repository
+git clone https://github.com/akhanna222/agentic-platform.git
+cd agentic-platform
+
+# Run interactive setup (installs everything!)
 python start.py
 ```
 
 This will guide you through setup, test your connection, and start the platform!
+
+**Already cloned? Just run:**
+
+```bash
+python start.py
+```
 
 **Or manual setup:**
 
