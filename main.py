@@ -7,7 +7,13 @@ import asyncio
 
 from loguru import logger
 
-from app.agent import PlatformAgent, BrowserAgent, DataAnalysisAgent, MCPAgent
+from app.agent import (
+    PlatformAgent,
+    BrowserAgent,
+    DataAnalysisAgent,
+    MCPAgent,
+    FullStackShipAgent,
+)
 
 
 # Available agent types
@@ -16,6 +22,7 @@ AGENT_TYPES = {
     "browser": BrowserAgent,
     "data": DataAnalysisAgent,
     "mcp": MCPAgent,
+    "ship": FullStackShipAgent,
 }
 
 
@@ -30,11 +37,13 @@ Agent Types:
   browser       Specialized browser automation agent
   data          Data analysis and visualization agent
   mcp           Agent with Model Context Protocol support
+  ship          FullStack SaaS app builder (Supabase + Stripe + Deploy)
 
 Examples:
   python main.py --prompt "Search for Python news"
   python main.py --agent browser --prompt "Go to google.com and search for AI"
   python main.py --agent data --prompt "Analyze data.csv and create visualizations"
+  python main.py --agent ship --prompt "Build a SaaS app for project management"
         """,
     )
     parser.add_argument(
