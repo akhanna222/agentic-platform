@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic Platform - AI Agent Framework</title>
+    <link rel="stylesheet" href="/ui/assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🤖</span>
+                    <span class="logo-text">Agentic Platform</span>
+                </div>
+                <nav class="nav">
+                    <a href="#agents" class="nav-link active">Agents</a>
+                    <a href="#sessions" class="nav-link">Sessions</a>
+                    <a href="#docs" class="nav-link">Docs</a>
+                    <button class="btn-secondary" onclick="showAbout()">About</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero">
+                <h1 class="hero-title">Build Anything with AI Agents</h1>
+                <p class="hero-subtitle">Choose an agent, describe your task, and watch AI build it for you</p>
+            </section>
+
+            <!-- Agent Selection -->
+            <section class="agents-section">
+                <h2 class="section-title">Choose Your Agent</h2>
+                <div class="agents-grid" id="agentsGrid">
+                    <!-- Agents will be loaded here -->
+                    <div class="agent-card-skeleton"></div>
+                    <div class="agent-card-skeleton"></div>
+                    <div class="agent-card-skeleton"></div>
+                </div>
+            </section>
+
+            <!-- Task Input -->
+            <section class="task-section" id="taskSection" style="display: none;">
+                <div class="task-container">
+                    <div class="task-header">
+                        <div class="selected-agent-info">
+                            <span class="selected-agent-icon" id="selectedAgentIcon">🤖</span>
+                            <div>
+                                <h3 id="selectedAgentName">Platform Agent</h3>
+                                <p id="selectedAgentDesc">General-purpose agent</p>
+                            </div>
+                        </div>
+                        <button class="btn-text" onclick="changeAgent()">Change Agent</button>
+                    </div>
+
+                    <div class="task-input-container">
+                        <textarea
+                            id="taskPrompt"
+                            class="task-input"
+                            placeholder="Describe what you want to build...
+
+Examples:
+• Build a SaaS app for project management with Stripe subscriptions
+• Scrape data from a website and create visualizations
+• Analyze sales data and create charts
+• Search for AI news and summarize the top articles"
+                            rows="6"
+                        ></textarea>
+
+                        <div class="task-controls">
+                            <div class="task-options">
+                                <label class="option-label">
+                                    Max Steps:
+                                    <select id="maxSteps" class="option-select">
+                                        <option value="10">10</option>
+                                        <option value="20" selected>20</option>
+                                        <option value="30">30</option>
+                                        <option value="50">50</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <button class="btn-primary btn-large" onclick="startTask()" id="startBtn">
+                                <span>🚀 Start Building</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Output Section -->
+            <section class="output-section" id="outputSection" style="display: none;">
+                <div class="output-container">
+                    <div class="output-header">
+                        <h3>Agent Output</h3>
+                        <div class="output-controls">
+                            <span class="status-badge" id="statusBadge">Running</span>
+                            <button class="btn-text btn-icon" onclick="stopTask()">
+                                <span>⏹</span> Stop
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="output-content" id="outputContent">
+                        <!-- Output will appear here -->
+                    </div>
+
+                    <div class="output-footer" id="outputFooter" style="display: none;">
+                        <div class="output-stats">
+                            <span id="stepsUsed">Steps: 0/20</span>
+                            <span id="agentState">State: Running</span>
+                        </div>
+                        <button class="btn-primary" onclick="resetTask()">
+                            Start New Task
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sessions List -->
+            <section class="sessions-section" id="sessionsSection">
+                <h2 class="section-title">Recent Sessions</h2>
+                <div class="sessions-list" id="sessionsList">
+                    <div class="empty-state">
+                        <span class="empty-icon">📝</span>
+                        <p>No sessions yet. Start a task to begin!</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Agentic Platform. Built with ❤️ for developers.</p>
+            <div class="footer-links">
+                <a href="https://github.com/yourusername/agentic-platform">GitHub</a>
+                <a href="/docs">Documentation</a>
+                <a href="/api/health">API Status</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- About Modal -->
+    <div class="modal" id="aboutModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>About Agentic Platform</h2>
+                <button class="modal-close" onclick="closeAbout()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Agentic Platform is a powerful AI agent framework that can:</p>
+                <ul>
+                    <li>🚀 Build complete SaaS applications</li>
+                    <li>🌐 Automate browser tasks and web scraping</li>
+                    <li>📊 Analyze data and create visualizations</li>
+                    <li>🔌 Integrate with external tools via MCP</li>
+                    <li>🤖 Handle any general-purpose task</li>
+                </ul>
+                <p><strong>Version:</strong> 1.0.0</p>
+                <p><strong>Agents:</strong> 5 specialized agents</p>
+                <p><strong>Tools:</strong> 20+ integrated tools</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/ui/assets/js/app.js"></script>
+</body>
+</html>

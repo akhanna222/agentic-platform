@@ -11,7 +11,7 @@ boto3~=1.37.0  # AWS Bedrock support
 # Browser automation and web tools
 playwright~=1.51.0
 browser-use~=0.1.40
-crawl4ai~=0.6.3
+# crawl4ai~=0.6.3  # Commented out due to dependency conflicts - install separately if needed
 selenium~=4.27.0
 
 # Web search and scraping

@@ -14,7 +14,12 @@ The Agentic Platform provides a complete framework for developing AI agents that
 
 ## Key Features
 
-### 🤖 Autonomous Agent System
+### 🤖 Specialized Agent System
+- **Platform Agent**: General-purpose with all tools
+- **Browser Agent**: Web automation and scraping specialist
+- **Data Analysis Agent**: Data visualization expert
+- **MCP Agent**: External tool integration via Model Context Protocol
+- **FullStack Ship Agent**: Complete SaaS builder (Next.js + Supabase + Stripe)
 - Multi-step reasoning and execution
 - Automatic tool selection and usage
 - Stuck detection and recovery
@@ -40,7 +45,37 @@ The Agentic Platform provides a complete framework for developing AI agents that
 - Comprehensive logging
 - Sandbox execution support (optional)
 
-## Quick Start
+## 🌐 Web UI - Lovable-Inspired Interface
+
+The Agentic Platform includes a beautiful web interface for interacting with all agents visually!
+
+**Quick Start with Web UI:**
+
+```bash
+# Install minimal dependencies
+pip install -r requirements-minimal.txt
+
+# Set your API key
+export OPENAI_API_KEY=sk-...
+
+# Start the web server
+python web_server.py
+```
+
+Then open http://localhost:8000 in your browser!
+
+**Features:**
+- 🎨 Modern gradient UI with smooth animations
+- 🤖 Select from 5 specialized agents
+- 💬 Real-time WebSocket streaming
+- 📝 Session history and management
+- 📱 Fully responsive design
+
+See [WEB_UI_DEPLOYMENT.md](WEB_UI_DEPLOYMENT.md) for full deployment guide.
+
+---
+
+## Quick Start (CLI Mode)
 
 ### Prerequisites
 
@@ -110,7 +145,14 @@ export OPENAI_API_KEY="your-api-key-here"
 #### Interactive Mode
 
 ```bash
+# Default platform agent
 python main.py
+
+# Specific agent type
+python main.py --agent browser  # For web automation
+python main.py --agent data     # For data analysis
+python main.py --agent mcp      # For external tools
+python main.py --agent ship     # For SaaS building
 ```
 
 Then enter your task when prompted.
@@ -118,7 +160,17 @@ Then enter your task when prompted.
 #### Command Line Mode
 
 ```bash
+# Platform agent
 python main.py --prompt "Create a file called hello.txt with the text 'Hello World' and read it back"
+
+# Browser agent
+python main.py --agent browser --prompt "Go to example.com and extract all links"
+
+# Data analysis agent
+python main.py --agent data --prompt "Create a bar chart of sales data"
+
+# FullStack Ship agent
+python main.py --agent ship --prompt "Build a SaaS app for task management"
 ```
 
 #### Python API
