@@ -5,7 +5,11 @@ Main entry point for the Agentic Platform
 import argparse
 import asyncio
 
+from dotenv import load_dotenv
 from loguru import logger
+
+# Load environment variables from .env file
+load_dotenv()
 
 from app.agent import (
     PlatformAgent,
