@@ -322,7 +322,7 @@ def start_web_ui():
     print_section("Starting Web UI")
 
     print("🚀 Launching web server...")
-    print("   URL: http://localhost:8000")
+    print("   URL: http://localhost:8005")
     print("   Press Ctrl+C to stop\n")
 
     try:

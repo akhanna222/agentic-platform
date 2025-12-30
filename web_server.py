@@ -264,11 +264,11 @@ except:
 
 if __name__ == "__main__":
     logger.info("Starting Agentic Platform Web Server...")
-    logger.info("UI will be available at: http://localhost:8000")
+    logger.info("UI will be available at: http://localhost:8005")
 
     uvicorn.run(
         app,
         host="0.0.0.0",
-        port=8000,
+        port=8005,
         log_level="info",
     )
