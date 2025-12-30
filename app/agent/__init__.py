@@ -10,6 +10,7 @@ from app.agent.browser import BrowserAgent
 from app.agent.data_analysis import DataAnalysisAgent
 from app.agent.mcp import MCPAgent
 from app.agent.fullstack_ship import FullStackShipAgent
+from app.agent.test import TestAgent
 
 __all__ = [
     "Agent",
@@ -20,4 +21,5 @@ __all__ = [
     "DataAnalysisAgent",
     "MCPAgent",
     "FullStackShipAgent",
+    "TestAgent",
 ]

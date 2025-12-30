@@ -21,6 +21,7 @@ from app.agent import (
     DataAnalysisAgent,
     MCPAgent,
     FullStackShipAgent,
+    TestAgent,
 )
 from loguru import logger
 
@@ -47,6 +48,7 @@ AGENT_TYPES = {
     "data": DataAnalysisAgent,
     "mcp": MCPAgent,
     "ship": FullStackShipAgent,
+    "test": TestAgent,
 }
 
 # Active sessions
@@ -114,6 +116,12 @@ async def list_agents():
                 "name": "FullStack Ship Agent",
                 "description": "Complete SaaS builder (Supabase + Stripe)",
                 "icon": "🚀",
+            },
+            {
+                "id": "test",
+                "name": "Test Agent",
+                "description": "Validates all components and dependencies",
+                "icon": "🧪",
             },
         ]
     }

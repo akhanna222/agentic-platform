@@ -13,6 +13,7 @@ from app.agent import (
     DataAnalysisAgent,
     MCPAgent,
     FullStackShipAgent,
+    TestAgent,
 )
 
 
@@ -23,6 +24,7 @@ AGENT_TYPES = {
     "data": DataAnalysisAgent,
     "mcp": MCPAgent,
     "ship": FullStackShipAgent,
+    "test": TestAgent,
 }
 
 
@@ -38,12 +40,14 @@ Agent Types:
   data          Data analysis and visualization agent
   mcp           Agent with Model Context Protocol support
   ship          FullStack SaaS app builder (Supabase + Stripe + Deploy)
+  test          Testing and validation agent (checks all components)
 
 Examples:
   python main.py --prompt "Search for Python news"
   python main.py --agent browser --prompt "Go to google.com and search for AI"
   python main.py --agent data --prompt "Analyze data.csv and create visualizations"
   python main.py --agent ship --prompt "Build a SaaS app for project management"
+  python main.py --agent test --prompt "Run a comprehensive health check"
         """,
     )
     parser.add_argument(
