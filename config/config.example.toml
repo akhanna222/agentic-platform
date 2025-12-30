@@ -1,0 +1,54 @@
+# Agentic Platform Configuration
+
+[llm]
+# LLM Model Configuration
+model = "gpt-4o"  # Options: gpt-4o, gpt-4-turbo, gpt-3.5-turbo, claude-3-opus, etc.
+api_type = "openai"  # Options: openai, azure, bedrock
+temperature = 0.7
+max_tokens = 4096
+timeout = 120
+max_retries = 3
+
+# OpenAI Configuration
+api_key = ""  # Set via OPENAI_API_KEY env variable or here
+# api_base = "https://api.openai.com/v1"  # Optional custom endpoint
+
+# Azure OpenAI Configuration (if using Azure)
+# azure_deployment = "your-deployment-name"
+# api_version = "2024-02-01"
+
+# AWS Bedrock Configuration (if using Bedrock)
+# aws_region = "us-east-1"
+# aws_access_key_id = ""  # Or use AWS_ACCESS_KEY_ID env variable
+# aws_secret_access_key = ""  # Or use AWS_SECRET_ACCESS_KEY env variable
+
+[browser]
+# Browser Automation Settings
+headless = true
+disable_security = false
+# chrome_instance_path = "/path/to/chrome"  # Optional
+# proxy = "http://proxy:port"  # Optional
+
+[search]
+# Web Search Configuration
+engine = "duckduckgo"  # Options: duckduckgo, google, baidu
+fallback_engines = ["duckduckgo"]
+max_retries = 3
+language = "en"
+country = "us"
+
+[sandbox]
+# Sandbox Execution Environment
+enabled = false
+docker_image = "python:3.12-slim"
+timeout = 300
+memory_limit = "512m"
+cpu_limit = "1.0"
+network_enabled = false
+
+[platform]
+# General Platform Settings
+workspace_dir = "./workspace"
+log_level = "INFO"  # Options: DEBUG, INFO, WARNING, ERROR
+max_agent_steps = 20
+enable_human_feedback = true

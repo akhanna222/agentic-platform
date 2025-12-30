@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  agentic-platform:
+    build: .
+    container_name: agentic-platform
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+    volumes:
+      - ./workspace:/app/workspace
+      - ./config:/app/config
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
