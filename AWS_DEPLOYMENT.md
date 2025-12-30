@@ -132,19 +132,205 @@ nano config/config.toml
 export OPENAI_API_KEY="your-key"
 ```
 
-### Step 4: Run as a Service
+### Step 4: Deploy Web UI
+
+For the **Lovable-inspired web interface**, we'll set up the web server instead of the CLI agent:
+
+```bash
+# Install minimal dependencies for web UI
+source venv/bin/activate
+pip install -r requirements-minimal.txt
+
+# Set environment variables
+export OPENAI_API_KEY="your-key"
+export OPENAI_MODEL="gpt-4o-mini"
+```
+
+#### Option A: Run Web Server Directly
+
+```bash
+# Start web server
+python web_server.py
+```
+
+#### Option B: Run as Systemd Service (Recommended)
 
 Create a systemd service for automatic startup:
 
 ```bash
-sudo nano /etc/systemd/system/agentic-platform.service
+sudo nano /etc/systemd/system/agentic-web.service
 ```
 
 Add the following content:
 
 ```ini
 [Unit]
-Description=Agentic Platform Service
+Description=Agentic Platform Web UI
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/agentic-platform
+Environment="OPENAI_API_KEY=your-key"
+Environment="OPENAI_MODEL=gpt-4o-mini"
+ExecStart=/home/ubuntu/agentic-platform/venv/bin/python web_server.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable agentic-web
+sudo systemctl start agentic-web
+
+# Check status
+sudo systemctl status agentic-web
+
+# View logs
+sudo journalctl -u agentic-web -f
+```
+
+### Step 5: Configure Nginx Reverse Proxy
+
+Install and configure Nginx to handle HTTPS and WebSocket connections:
+
+```bash
+# Install Nginx
+sudo apt install -y nginx
+
+# Create Nginx configuration
+sudo nano /etc/nginx/sites-available/agentic-platform
+```
+
+Add this configuration:
+
+```nginx
+upstream agentic_backend {
+    server 127.0.0.1:8000;
+}
+
+server {
+    listen 80;
+    server_name your-domain.com;  # Replace with your domain or IP
+
+    # Redirect HTTP to HTTPS (after SSL setup)
+    # return 301 https://$server_name$request_uri;
+
+    # Main application
+    location / {
+        proxy_pass http://agentic_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Timeouts
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+
+    # WebSocket endpoint
+    location /ws {
+        proxy_pass http://agentic_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+
+        # Longer timeout for WebSocket connections
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 3600s;
+    }
+
+    # Static files (optional - FastAPI serves them)
+    location /ui {
+        proxy_pass http://agentic_backend;
+    }
+}
+```
+
+Enable the site:
+
+```bash
+# Enable site
+sudo ln -s /etc/nginx/sites-available/agentic-platform /etc/nginx/sites-enabled/
+
+# Test configuration
+sudo nginx -t
+
+# Restart Nginx
+sudo systemctl restart nginx
+```
+
+### Step 6: Configure Security Group for Web Access
+
+Update your security group to allow HTTP/HTTPS traffic:
+
+```bash
+# Allow HTTP (port 80)
+aws ec2 authorize-security-group-ingress \
+    --group-name agentic-platform-sg \
+    --protocol tcp \
+    --port 80 \
+    --cidr 0.0.0.0/0
+
+# Allow HTTPS (port 443)
+aws ec2 authorize-security-group-ingress \
+    --group-name agentic-platform-sg \
+    --protocol tcp \
+    --port 443 \
+    --cidr 0.0.0.0/0
+
+# Allow custom port 8000 (if accessing directly without Nginx)
+aws ec2 authorize-security-group-ingress \
+    --group-name agentic-platform-sg \
+    --protocol tcp \
+    --port 8000 \
+    --cidr 0.0.0.0/0
+```
+
+### Step 7: Setup SSL/HTTPS with Let's Encrypt
+
+```bash
+# Install Certbot
+sudo apt install -y certbot python3-certbot-nginx
+
+# Get SSL certificate (replace with your domain)
+sudo certbot --nginx -d your-domain.com
+
+# Certbot will automatically update your Nginx config
+# Certificates auto-renew via cron
+```
+
+### Step 8: Access Your Web UI
+
+Your web interface is now accessible at:
+
+- **HTTP**: `http://your-instance-ip` or `http://your-domain.com`
+- **HTTPS**: `https://your-domain.com` (after SSL setup)
+
+### CLI Agent Service (Optional)
+
+If you also want to run CLI agents as a service:
+
+```bash
+sudo nano /etc/systemd/system/agentic-cli.service
+```
+
+```ini
+[Unit]
+Description=Agentic Platform CLI Service
 After=network.target
 
 [Service]
@@ -160,25 +346,52 @@ RestartSec=10
 WantedBy=multi-user.target
 ```
 
-Enable and start the service:
+Enable and start:
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable agentic-platform
-sudo systemctl start agentic-platform
-
-# Check status
-sudo systemctl status agentic-platform
-
-# View logs
-sudo journalctl -u agentic-platform -f
+sudo systemctl enable agentic-cli
+sudo systemctl start agentic-cli
 ```
 
-## ECS/Fargate Deployment
+## ECS/Fargate Deployment (Web UI)
 
-ECS Fargate provides serverless container deployment without managing servers.
+ECS Fargate provides serverless container deployment without managing servers. This section covers deploying the **web UI** on ECS.
 
-### Step 1: Create ECR Repository
+### Step 1: Create Dockerfile for Web UI
+
+First, ensure you have a proper Dockerfile:
+
+```dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY requirements-minimal.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements-minimal.txt
+
+# Copy application code
+COPY app/ app/
+COPY ui/ ui/
+COPY web_server.py .
+COPY config/ config/
+
+# Expose port
+EXPOSE 8000
+
+# Run web server
+CMD ["python", "web_server.py"]
+```
+
+### Step 2: Create ECR Repository
 
 ```bash
 # Create ECR repository
@@ -282,17 +495,100 @@ aws ecs run-task \
     --network-configuration "awsvpcConfiguration={subnets=[subnet-xxxxx],securityGroups=[sg-xxxxx],assignPublicIp=ENABLED}"
 ```
 
-### Step 8: Create Service (Optional - for long-running tasks)
+### Step 8: Create Application Load Balancer
+
+For the web UI, create an ALB to handle HTTP/HTTPS traffic and WebSocket connections:
+
+```bash
+# Create ALB
+aws elbv2 create-load-balancer \
+    --name agentic-platform-alb \
+    --subnets subnet-xxxxx subnet-yyyyy \
+    --security-groups sg-xxxxx \
+    --scheme internet-facing \
+    --type application \
+    --ip-address-type ipv4
+
+# Create target group
+aws elbv2 create-target-group \
+    --name agentic-platform-tg \
+    --protocol HTTP \
+    --port 8000 \
+    --vpc-id vpc-xxxxx \
+    --target-type ip \
+    --health-check-enabled \
+    --health-check-path /api/health \
+    --health-check-interval-seconds 30 \
+    --health-check-timeout-seconds 5 \
+    --healthy-threshold-count 2 \
+    --unhealthy-threshold-count 3
+
+# Create listener (HTTP)
+aws elbv2 create-listener \
+    --load-balancer-arn arn:aws:elasticloadbalancing:... \
+    --protocol HTTP \
+    --port 80 \
+    --default-actions Type=forward,TargetGroupArn=arn:aws:elasticloadbalancing:...
+
+# Optional: Create HTTPS listener with SSL certificate
+aws elbv2 create-listener \
+    --load-balancer-arn arn:aws:elasticloadbalancing:... \
+    --protocol HTTPS \
+    --port 443 \
+    --certificates CertificateArn=arn:aws:acm:... \
+    --default-actions Type=forward,TargetGroupArn=arn:aws:elasticloadbalancing:...
+```
+
+### Step 9: Create ECS Service with Load Balancer
 
 ```bash
 aws ecs create-service \
     --cluster agentic-platform-cluster \
-    --service-name agentic-platform-service \
+    --service-name agentic-platform-web \
     --task-definition agentic-platform \
-    --desired-count 1 \
+    --desired-count 2 \
     --launch-type FARGATE \
-    --network-configuration "awsvpcConfiguration={subnets=[subnet-xxxxx],securityGroups=[sg-xxxxx],assignPublicIp=ENABLED}"
+    --network-configuration "awsvpcConfiguration={subnets=[subnet-xxxxx,subnet-yyyyy],securityGroups=[sg-xxxxx],assignPublicIp=ENABLED}" \
+    --load-balancers "targetGroupArn=arn:aws:elasticloadbalancing:...,containerName=agentic-platform,containerPort=8000"
 ```
+
+### Step 10: Configure Security Group for ALB
+
+```bash
+# Allow HTTP traffic to ALB
+aws ec2 authorize-security-group-ingress \
+    --group-id sg-alb \
+    --protocol tcp \
+    --port 80 \
+    --cidr 0.0.0.0/0
+
+# Allow HTTPS traffic to ALB
+aws ec2 authorize-security-group-ingress \
+    --group-id sg-alb \
+    --protocol tcp \
+    --port 443 \
+    --cidr 0.0.0.0/0
+
+# Allow ECS tasks to receive traffic from ALB
+aws ec2 authorize-security-group-ingress \
+    --group-id sg-ecs-tasks \
+    --protocol tcp \
+    --port 8000 \
+    --source-group sg-alb
+```
+
+### Step 11: Access Your Web UI
+
+After deployment, get your ALB DNS name:
+
+```bash
+aws elbv2 describe-load-balancers \
+    --names agentic-platform-alb \
+    --query 'LoadBalancers[0].DNSName' \
+    --output text
+```
+
+Access your web UI at: `http://your-alb-dns-name.amazonaws.com`
 
 ## Lambda Deployment
 
