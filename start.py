@@ -48,6 +48,62 @@ def check_python_version():
         print(f"✅ Python {version.major}.{version.minor}.{version.micro} - Perfect!")
 
 
+def setup_virtual_environment():
+    """Set up virtual environment if needed"""
+    venv_path = Path("venv")
+
+    if venv_path.exists():
+        print("✅ Virtual environment found")
+        return True
+
+    print("📦 Creating virtual environment...")
+    print("   This avoids system package conflicts")
+
+    try:
+        subprocess.run(
+            [sys.executable, "-m", "venv", "venv"],
+            check=True
+        )
+        print("✅ Virtual environment created!")
+        print("\n💡 To use it manually:")
+        print("   source venv/bin/activate  # Linux/Mac")
+        print("   venv\\Scripts\\activate    # Windows")
+        return True
+    except subprocess.CalledProcessError:
+        print("⚠️  Could not create virtual environment")
+        return False
+
+
+def get_python_executable():
+    """Get the appropriate Python executable (venv or system)"""
+    venv_path = Path("venv")
+
+    if venv_path.exists():
+        # Use venv python
+        if os.name == 'nt':  # Windows
+            return str(venv_path / "Scripts" / "python")
+        else:  # Linux/Mac
+            return str(venv_path / "bin" / "python")
+    else:
+        # Use system python
+        return sys.executable
+
+
+def get_pip_command():
+    """Get the appropriate pip command (venv or system)"""
+    venv_path = Path("venv")
+
+    if venv_path.exists():
+        # Use venv pip
+        if os.name == 'nt':  # Windows
+            return str(venv_path / "Scripts" / "pip")
+        else:  # Linux/Mac
+            return str(venv_path / "bin" / "pip")
+    else:
+        # Use system pip
+        return sys.executable + " -m pip"
+
+
 def check_dependencies():
     """Check if dependencies are installed"""
     print_section("Checking Dependencies")
@@ -65,17 +121,44 @@ def check_dependencies():
 
     if missing:
         print(f"\n⚠️  Missing {len(missing)} package(s)")
+
+        # Check for externally-managed-environment error
+        is_ubuntu = os.path.exists('/etc/lsb-release')
+
+        if is_ubuntu and not Path("venv").exists():
+            print("\n🔧 Detected Ubuntu/Debian - Setting up virtual environment...")
+            setup_virtual_environment()
+
         print("\nInstalling minimal dependencies...")
 
         try:
-            subprocess.run(
-                [sys.executable, "-m", "pip", "install", "-q", "-r", "requirements-minimal.txt"],
-                check=True
-            )
+            pip_cmd = get_pip_command()
+
+            if isinstance(pip_cmd, str) and ' ' in pip_cmd:
+                # It's a command like "python -m pip"
+                cmd_parts = pip_cmd.split() + ["install", "-q", "-r", "requirements-minimal.txt"]
+            else:
+                # It's a path to pip
+                cmd_parts = [pip_cmd, "install", "-q", "-r", "requirements-minimal.txt"]
+
+            subprocess.run(cmd_parts, check=True)
             print("✅ Dependencies installed successfully!")
-        except subprocess.CalledProcessError:
-            print("❌ Installation failed. Please run manually:")
+
+            # If we used venv, remind user to activate it
+            if Path("venv").exists():
+                print("\n💡 Virtual environment is set up!")
+                print("   For future manual use, activate it first:")
+                print("   source venv/bin/activate  # Linux/Mac")
+
+        except subprocess.CalledProcessError as e:
+            print(f"❌ Installation failed: {e}")
+            print("\n🔧 Manual fix options:")
+            print("\n   Option 1: Use virtual environment (recommended)")
+            print("   python3 -m venv venv")
+            print("   source venv/bin/activate")
             print("   pip install -r requirements-minimal.txt")
+            print("\n   Option 2: Use --break-system-packages (not recommended)")
+            print("   pip install -r requirements-minimal.txt --break-system-packages")
             sys.exit(1)
     else:
         print("\n✅ All dependencies installed!")
@@ -243,7 +326,8 @@ def start_web_ui():
     print("   Press Ctrl+C to stop\n")
 
     try:
-        subprocess.run([sys.executable, "web_server.py"])
+        python_exe = get_python_executable()
+        subprocess.run([python_exe, "web_server.py"])
     except KeyboardInterrupt:
         print("\n\n👋 Web server stopped")
 
@@ -266,7 +350,8 @@ def run_cli_agent():
         print("❌ Task description required")
         return
 
-    cmd = [sys.executable, "main.py", "--agent", agent, "--prompt", prompt]
+    python_exe = get_python_executable()
+    cmd = [python_exe, "main.py", "--agent", agent, "--prompt", prompt]
 
     print(f"\n🤖 Running {agent} agent...")
     subprocess.run(cmd)
@@ -278,7 +363,8 @@ def test_components():
 
     print("🧪 Running health check...\n")
 
-    cmd = [sys.executable, "main.py", "--agent", "test", "--prompt", "Run comprehensive health check"]
+    python_exe = get_python_executable()
+    cmd = [python_exe, "main.py", "--agent", "test", "--prompt", "Run comprehensive health check"]
     subprocess.run(cmd)
 
 
