@@ -1,121 +1,141 @@
 /**
- * Agentic Platform - Frontend JavaScript
- * Handles agent selection, task execution, and real-time updates
+ * Agentic Platform - Lovable-Style Frontend
+ * Modern split-screen interface with real-time updates
  */
 
-// State management
+// ============================================
+// State Management
+// ============================================
+
 let selectedAgent = null;
 let currentSession = null;
 let websocket = null;
+let isDarkMode = false;
 
-// Initialize the app
+// ============================================
+// Initialize App
+// ============================================
+
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('🚀 Agentic Platform UI loaded');
+    console.log('✨ Agentic Platform UI loaded');
+
+    // Load initial data
     await loadAgents();
     await loadSessions();
+
+    // Initialize theme
+    initializeTheme();
+
+    // Setup panel resizer
+    setupPanelResizer();
 });
 
-/**
- * Load available agents from API
- */
+// ============================================
+// Load Agents
+// ============================================
+
 async function loadAgents() {
     try {
         const response = await fetch('/api/agents');
         const data = await response.json();
 
-        const grid = document.getElementById('agentsGrid');
-        grid.innerHTML = '';
+        const agentsList = document.getElementById('agentsList');
+        agentsList.innerHTML = '';
 
         data.agents.forEach(agent => {
-            const card = createAgentCard(agent);
-            grid.appendChild(card);
+            const item = createAgentItem(agent);
+            agentsList.appendChild(item);
         });
 
         console.log(`✅ Loaded ${data.agents.length} agents`);
     } catch (error) {
         console.error('❌ Failed to load agents:', error);
-        showError('Failed to load agents. Please refresh the page.');
+        showNotification('Failed to load agents', 'error');
     }
 }
 
-/**
- * Create an agent card element
- */
-function createAgentCard(agent) {
-    const card = document.createElement('div');
-    card.className = 'agent-card';
-    card.onclick = () => selectAgent(agent);
+function createAgentItem(agent) {
+    const item = document.createElement('div');
+    item.className = 'agent-item';
+    item.onclick = () => selectAgent(agent);
 
-    card.innerHTML = `
-        <span class="agent-icon">${agent.icon}</span>
-        <h3 class="agent-name">${agent.name}</h3>
-        <p class="agent-description">${agent.description}</p>
+    item.innerHTML = `
+        <span class="agent-item-icon">${agent.icon}</span>
+        <span class="agent-item-name">${agent.name}</span>
     `;
 
-    return card;
+    return item;
 }
 
-/**
- * Select an agent
- */
+//============================================
+// Select Agent
+// ============================================
+
 function selectAgent(agent) {
     selectedAgent = agent;
 
-    // Update UI
-    document.querySelectorAll('.agent-card').forEach(card => {
-        card.classList.remove('selected');
+    // Update sidebar
+    document.querySelectorAll('.agent-item').forEach(item => {
+        item.classList.remove('active');
     });
-    event.currentTarget.classList.add('selected');
+    event.currentTarget.classList.add('active');
 
-    // Show task section
-    document.getElementById('taskSection').style.display = 'block';
+    // Hide welcome screen, show chat interface
+    document.getElementById('welcomeScreen').style.display = 'none';
+    document.getElementById('chatInterface').style.display = 'flex';
 
-    // Update selected agent info
-    document.getElementById('selectedAgentIcon').textContent = agent.icon;
-    document.getElementById('selectedAgentName').textContent = agent.name;
-    document.getElementById('selectedAgentDesc').textContent = agent.description;
+    // Update chat header
+    document.getElementById('chatAgentIcon').textContent = agent.icon;
+    document.getElementById('chatAgentName').textContent = agent.name;
 
-    // Scroll to task section
-    document.getElementById('taskSection').scrollIntoView({ behavior: 'smooth' });
+    // Clear chat messages
+    const chatMessages = document.getElementById('chatMessages');
+    chatMessages.innerHTML = `
+        <div class="system-message">
+            <div class="message-icon">${agent.icon}</div>
+            <div class="message-content">
+                <strong>${agent.name} is ready!</strong>
+                <p>${agent.description}</p>
+            </div>
+        </div>
+    `;
+
+    // Focus chat input
+    document.getElementById('chatInput').focus();
 
     console.log(`✅ Selected agent: ${agent.name}`);
 }
 
-/**
- * Change the selected agent
- */
-function changeAgent() {
-    selectedAgent = null;
-    document.querySelectorAll('.agent-card').forEach(card => {
-        card.classList.remove('selected');
-    });
-    document.getElementById('taskSection').style.display = 'none';
+// ============================================
+// Send Message
+// ============================================
 
-    // Scroll back to agents
-    document.querySelector('.agents-section').scrollIntoView({ behavior: 'smooth' });
-}
-
-/**
- * Start a new task
- */
-async function startTask() {
+async function sendMessage() {
     if (!selectedAgent) {
-        showError('Please select an agent first');
+        showNotification('Please select an agent first', 'error');
         return;
     }
 
-    const prompt = document.getElementById('taskPrompt').value.trim();
-    if (!prompt) {
-        showError('Please enter a task description');
+    const chatInput = document.getElementById('chatInput');
+    const message = chatInput.value.trim();
+
+    if (!message) {
+        showNotification('Please enter a message', 'error');
         return;
     }
 
     const maxSteps = parseInt(document.getElementById('maxSteps').value);
 
-    // Disable start button
-    const startBtn = document.getElementById('startBtn');
-    startBtn.disabled = true;
-    startBtn.innerHTML = '<span>⏳ Starting...</span>';
+    // Add user message to chat
+    addChatMessage('user', message);
+
+    // Clear input
+    chatInput.value = '';
+
+    // Disable send button
+    const sendBtn = document.getElementById('sendBtn');
+    sendBtn.disabled = true;
+    sendBtn.innerHTML = '<span class="send-btn-text">Sending...</span>';
 
     try {
         // Create task session
@@ -126,7 +146,7 @@ async function startTask() {
             },
             body: JSON.stringify({
                 agent_type: selectedAgent.id,
-                prompt: prompt,
+                prompt: message,
                 max_steps: maxSteps,
             }),
         });
@@ -136,29 +156,82 @@ async function startTask() {
 
         console.log(`✅ Created session: ${currentSession}`);
 
-        // Show output section
-        document.getElementById('outputSection').style.display = 'block';
-        document.getElementById('outputContent').innerHTML = '';
-        document.getElementById('statusBadge').textContent = 'Connecting...';
-        document.getElementById('statusBadge').className = 'status-badge running';
+        // Show output tab
+        switchTab('output');
 
-        // Scroll to output
-        document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth' });
+        // Add connecting message
+        addOutputMessage('status', 'Connecting to agent...');
 
         // Connect WebSocket
         connectWebSocket(currentSession);
 
     } catch (error) {
-        console.error('❌ Failed to start task:', error);
-        showError('Failed to start task. Please try again.');
-        startBtn.disabled = false;
-        startBtn.innerHTML = '<span>🚀 Start Building</span>';
+        console.error('❌ Failed to send message:', error);
+        addChatMessage('agent', 'Sorry, I encountered an error. Please try again.');
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = '<span class="send-btn-text">Send</span><span class="send-btn-icon">→</span>';
     }
 }
 
-/**
- * Connect to WebSocket for real-time updates
- */
+// Handle Enter key in chat input
+function handleChatKeydown(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+    }
+}
+
+// ============================================
+// Chat Messages
+// ============================================
+
+function addChatMessage(type, content) {
+    const chatMessages = document.getElementById('chatMessages');
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `${type}-message`;
+    messageDiv.textContent = content;
+
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function clearChat() {
+    if (!selectedAgent) return;
+
+    const chatMessages = document.getElementById('chatMessages');
+    chatMessages.innerHTML = `
+        <div class="system-message">
+            <div class="message-icon">${selectedAgent.icon}</div>
+            <div class="message-content">
+                <strong>Chat cleared!</strong>
+                <p>Start a new conversation.</p>
+            </div>
+        </div>
+    `;
+
+    // Clear output
+    document.getElementById('outputMessages').innerHTML = '';
+    const emptyOutput = document.querySelector('#outputTab .empty-output');
+    if (emptyOutput) emptyOutput.style.display = 'block';
+
+    // Reset session
+    if (websocket) {
+        websocket.close();
+        websocket = null;
+    }
+    currentSession = null;
+
+    // Enable send button
+    const sendBtn = document.getElementById('sendBtn');
+    sendBtn.disabled = false;
+    sendBtn.innerHTML = '<span class="send-btn-text">Send</span><span class="send-btn-icon">→</span>';
+}
+
+// ============================================
+// WebSocket Connection
+// ============================================
+
 function connectWebSocket(sessionId) {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}/ws/${sessionId}`;
@@ -169,7 +242,7 @@ function connectWebSocket(sessionId) {
 
     websocket.onopen = () => {
         console.log('✅ WebSocket connected');
-        addOutputMessage('status', 'Connected to agent...');
+        addOutputMessage('status', '✅ Connected to agent');
     };
 
     websocket.onmessage = (event) => {
@@ -179,44 +252,45 @@ function connectWebSocket(sessionId) {
 
     websocket.onerror = (error) => {
         console.error('❌ WebSocket error:', error);
-        addOutputMessage('error', 'Connection error occurred');
+        addOutputMessage('error', '❌ Connection error occurred');
     };
 
     websocket.onclose = () => {
         console.log('🔌 WebSocket closed');
+
+        // Re-enable send button
+        const sendBtn = document.getElementById('sendBtn');
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = '<span class="send-btn-text">Send</span><span class="send-btn-icon">→</span>';
     };
 }
 
-/**
- * Handle WebSocket messages
- */
 function handleWebSocketMessage(data) {
     console.log('📨 Received:', data.type, data);
 
     switch (data.type) {
         case 'status':
-            updateStatus(data.status, data.message);
             addOutputMessage('status', data.message);
             break;
 
         case 'agent_start':
-            addOutputMessage('status', `🤖 ${selectedAgent.name} is processing your request...`);
+            addChatMessage('agent', `Processing your request...`);
+            addOutputMessage('status', `🤖 ${selectedAgent.name} is working...`);
             break;
 
         case 'response':
-            addOutputMessage('response', data.response);
-            updateStats(data.steps_used, data.max_steps, data.state);
+            addChatMessage('agent', data.response);
+            addOutputMessage('success', data.response);
             break;
 
         case 'error':
-            addOutputMessage('error', `Error: ${data.message}`);
-            updateStatus('error', 'Task failed');
-            showTaskComplete();
+            addChatMessage('agent', `Error: ${data.message}`);
+            addOutputMessage('error', `❌ Error: ${data.message}`);
             break;
 
         case 'complete':
-            updateStatus('completed', 'Task completed');
-            showTaskComplete();
+            addChatMessage('agent', '✅ Task completed!');
+            addOutputMessage('success', '✅ Task completed successfully');
             loadSessions(); // Refresh sessions list
             break;
 
@@ -225,91 +299,49 @@ function handleWebSocketMessage(data) {
     }
 }
 
-/**
- * Add a message to the output
- */
+// ============================================
+// Output Messages
+// ============================================
+
 function addOutputMessage(type, message) {
-    const outputContent = document.getElementById('outputContent');
+    const outputMessages = document.getElementById('outputMessages');
+    const emptyOutput = document.querySelector('#outputTab .empty-output');
+
+    // Hide empty state
+    if (emptyOutput) {
+        emptyOutput.style.display = 'none';
+    }
 
     const messageDiv = document.createElement('div');
     messageDiv.className = `output-message ${type}`;
     messageDiv.textContent = message;
 
-    outputContent.appendChild(messageDiv);
-
-    // Auto-scroll to bottom
-    outputContent.scrollTop = outputContent.scrollHeight;
+    outputMessages.appendChild(messageDiv);
+    outputMessages.parentElement.scrollTop = outputMessages.parentElement.scrollHeight;
 }
 
-/**
- * Update status badge
- */
-function updateStatus(status, message) {
-    const badge = document.getElementById('statusBadge');
-    badge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
-    badge.className = `status-badge ${status}`;
+// ============================================
+// Tab Switching
+// ============================================
+
+function switchTab(tabName) {
+    // Update tab buttons
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
+
+    // Update tab content
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.getElementById(`${tabName}Tab`).classList.add('active');
 }
 
-/**
- * Update stats in footer
- */
-function updateStats(stepsUsed, maxSteps, state) {
-    document.getElementById('stepsUsed').textContent = `Steps: ${stepsUsed}/${maxSteps}`;
-    document.getElementById('agentState').textContent = `State: ${state}`;
-    document.getElementById('outputFooter').style.display = 'flex';
-}
+// ============================================
+// Sessions
+// ============================================
 
-/**
- * Show task complete state
- */
-function showTaskComplete() {
-    const startBtn = document.getElementById('startBtn');
-    startBtn.disabled = false;
-    startBtn.innerHTML = '<span>🚀 Start Building</span>';
-
-    // Close WebSocket
-    if (websocket) {
-        websocket.close();
-        websocket = null;
-    }
-}
-
-/**
- * Stop the current task
- */
-function stopTask() {
-    if (websocket) {
-        websocket.close();
-        websocket = null;
-    }
-
-    addOutputMessage('status', '⏹ Task stopped by user');
-    updateStatus('completed', 'Stopped');
-    showTaskComplete();
-}
-
-/**
- * Reset and start a new task
- */
-function resetTask() {
-    // Clear output
-    document.getElementById('outputContent').innerHTML = '';
-    document.getElementById('outputFooter').style.display = 'none';
-    document.getElementById('outputSection').style.display = 'none';
-
-    // Clear input
-    document.getElementById('taskPrompt').value = '';
-
-    // Reset state
-    currentSession = null;
-
-    // Scroll back to task input
-    document.getElementById('taskSection').scrollIntoView({ behavior: 'smooth' });
-}
-
-/**
- * Load recent sessions
- */
 async function loadSessions() {
     try {
         const response = await fetch('/api/sessions');
@@ -319,22 +351,22 @@ async function loadSessions() {
 
         if (data.sessions.length === 0) {
             sessionsList.innerHTML = `
-                <div class="empty-state">
-                    <span class="empty-icon">📝</span>
-                    <p>No sessions yet. Start a task to begin!</p>
+                <div class="empty-state-small">
+                    <span class="empty-icon-small">📝</span>
+                    <p>No sessions</p>
                 </div>
             `;
         } else {
             sessionsList.innerHTML = '';
 
-            // Sort by created_at descending
-            const sessions = data.sessions.sort((a, b) =>
-                new Date(b.created_at) - new Date(a.created_at)
-            );
+            // Sort by created_at descending (newest first)
+            const sessions = data.sessions
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                .slice(0, 10); // Show only last 10
 
             sessions.forEach(session => {
-                const card = createSessionCard(session);
-                sessionsList.appendChild(card);
+                const item = createSessionItem(session);
+                sessionsList.appendChild(item);
             });
         }
 
@@ -344,61 +376,53 @@ async function loadSessions() {
     }
 }
 
-/**
- * Create a session card element
- */
-function createSessionCard(session) {
-    const card = document.createElement('div');
-    card.className = 'session-card';
+function createSessionItem(session) {
+    const item = document.createElement('div');
+    item.className = 'session-item';
+    item.onclick = () => viewSession(session.session_id);
 
-    const date = new Date(session.created_at);
-    const timeAgo = getTimeAgo(date);
+    const timeAgo = getTimeAgo(new Date(session.created_at));
 
-    card.innerHTML = `
-        <div class="session-info">
-            <div class="session-prompt">${truncate(session.prompt, 60)}</div>
-            <div class="session-meta">
-                ${session.agent_type} • ${session.status} • ${timeAgo}
-            </div>
-        </div>
-        <button class="btn-secondary" onclick="viewSession('${session.session_id}')">
-            View
-        </button>
+    item.innerHTML = `
+        <div class="session-item-prompt">${truncate(session.prompt, 40)}</div>
+        <div class="session-item-meta">${session.agent_type} • ${timeAgo}</div>
     `;
 
-    return card;
+    return item;
 }
 
-/**
- * View a session
- */
 async function viewSession(sessionId) {
     try {
         const response = await fetch(`/api/session/${sessionId}`);
         const session = await response.json();
 
-        // Show session details in output section
-        document.getElementById('outputSection').style.display = 'block';
-        document.getElementById('statusBadge').textContent = session.status;
-        document.getElementById('statusBadge').className = `status-badge ${session.status}`;
+        // Switch to output tab
+        switchTab('output');
 
-        const outputContent = document.getElementById('outputContent');
-        outputContent.innerHTML = `
+        // Clear and show session details
+        const outputMessages = document.getElementById('outputMessages');
+        const emptyOutput = document.querySelector('#outputTab .empty-output');
+
+        if (emptyOutput) {
+            emptyOutput.style.display = 'none';
+        }
+
+        outputMessages.innerHTML = `
             <div class="output-message status">
-                <strong>Session:</strong> ${session.session_id}<br>
+                <strong>Session ID:</strong> ${session.session_id}<br>
                 <strong>Agent:</strong> ${session.agent_type}<br>
                 <strong>Created:</strong> ${new Date(session.created_at).toLocaleString()}<br>
                 <strong>Status:</strong> ${session.status}
             </div>
-            <div class="output-message response">
+            <div class="output-message">
                 <strong>Prompt:</strong><br>
                 ${session.prompt}
             </div>
         `;
 
         if (session.response) {
-            outputContent.innerHTML += `
-                <div class="output-message response">
+            outputMessages.innerHTML += `
+                <div class="output-message success">
                     <strong>Response:</strong><br>
                     ${session.response}
                 </div>
@@ -406,7 +430,7 @@ async function viewSession(sessionId) {
         }
 
         if (session.error) {
-            outputContent.innerHTML += `
+            outputMessages.innerHTML += `
                 <div class="output-message error">
                     <strong>Error:</strong><br>
                     ${session.error}
@@ -414,61 +438,135 @@ async function viewSession(sessionId) {
             `;
         }
 
-        document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth' });
+        console.log(`✅ Loaded session: ${sessionId}`);
 
     } catch (error) {
         console.error('❌ Failed to load session:', error);
-        showError('Failed to load session details');
+        showNotification('Failed to load session', 'error');
     }
 }
 
-/**
- * Show the about modal
- */
-function showAbout() {
-    document.getElementById('aboutModal').style.display = 'flex';
-}
+// ============================================
+// Theme Management
+// ============================================
 
-/**
- * Close the about modal
- */
-function closeAbout() {
-    document.getElementById('aboutModal').style.display = 'none';
-}
-
-// Close modal when clicking outside
-document.addEventListener('click', (event) => {
-    const modal = document.getElementById('aboutModal');
-    if (event.target === modal) {
-        closeAbout();
+function initializeTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    if (savedTheme === 'dark') {
+        enableDarkMode();
     }
-});
-
-/**
- * Utility: Show error message
- */
-function showError(message) {
-    alert(message); // Simple for now, could be improved with toast notifications
 }
 
-/**
- * Utility: Truncate text
- */
+function toggleTheme() {
+    if (isDarkMode) {
+        disableDarkMode();
+    } else {
+        enableDarkMode();
+    }
+}
+
+function enableDarkMode() {
+    document.body.classList.add('dark-mode');
+    document.getElementById('themeIcon').textContent = '☀️';
+    localStorage.setItem('theme', 'dark');
+    isDarkMode = true;
+}
+
+function disableDarkMode() {
+    document.body.classList.remove('dark-mode');
+    document.getElementById('themeIcon').textContent = '🌙';
+    localStorage.setItem('theme', 'light');
+    isDarkMode = false;
+}
+
+function changeTheme(value) {
+    if (value === 'dark') {
+        enableDarkMode();
+    } else if (value === 'light') {
+        disableDarkMode();
+    } else {
+        // System preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            enableDarkMode();
+        } else {
+            disableDarkMode();
+        }
+    }
+}
+
+// ============================================
+// Panel Resizer
+// ============================================
+
+function setupPanelResizer() {
+    const resizer = document.getElementById('resizer');
+    const leftPanel = document.querySelector('.left-panel');
+    const rightPanel = document.querySelector('.right-panel');
+
+    let isResizing = false;
+
+    resizer.addEventListener('mousedown', (e) => {
+        isResizing = true;
+        document.body.style.cursor = 'col-resize';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isResizing) return;
+
+        const containerWidth = document.querySelector('.main-content').offsetWidth;
+        const leftWidth = e.clientX - leftPanel.getBoundingClientRect().left;
+        const leftPercent = (leftWidth / containerWidth) * 100;
+
+        if (leftPercent > 30 && leftPercent < 70) {
+            leftPanel.style.flex = `0 0 ${leftPercent}%`;
+            rightPanel.style.flex = `0 0 ${100 - leftPercent}%`;
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isResizing) {
+            isResizing = false;
+            document.body.style.cursor = 'default';
+        }
+    });
+}
+
+// ============================================
+// Settings Modal
+// ============================================
+
+function showSettings() {
+    document.getElementById('settingsModal').style.display = 'flex';
+}
+
+function closeSettings() {
+    document.getElementById('settingsModal').style.display = 'none';
+}
+
+// ============================================
+// Utility Functions
+// ============================================
+
+function showNotification(message, type = 'info') {
+    // Simple alert for now - could be improved with toast notifications
+    console.log(`[${type.toUpperCase()}] ${message}`);
+    if (type === 'error') {
+        alert(message);
+    }
+}
+
 function truncate(text, length) {
     if (text.length <= length) return text;
     return text.substring(0, length) + '...';
 }
 
-/**
- * Utility: Get time ago string
- */
 function getTimeAgo(date) {
     const seconds = Math.floor((new Date() - date) / 1000);
 
     if (seconds < 60) return 'just now';
-    if (seconds < 3600) return `${Math.floor(seconds / 60)} min ago`;
-    if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
-    return `${Math.floor(seconds / 86400)} days ago`;
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+    return `${Math.floor(seconds / 86400)}d ago`;
 }
 
-console.log('✅ Agentic Platform UI initialized');
+console.log('✅ Agentic Platform initialized');

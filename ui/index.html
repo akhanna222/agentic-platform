@@ -3,172 +3,234 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agentic Platform - AI Agent Framework</title>
+    <title>Agentic Platform - Build with AI Agents</title>
     <link rel="stylesheet" href="/ui/assets/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Code highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <span class="logo-icon">🤖</span>
-                    <span class="logo-text">Agentic Platform</span>
-                </div>
-                <nav class="nav">
-                    <a href="#agents" class="nav-link active">Agents</a>
-                    <a href="#sessions" class="nav-link">Sessions</a>
-                    <a href="#docs" class="nav-link">Docs</a>
-                    <button class="btn-secondary" onclick="showAbout()">About</button>
-                </nav>
-            </div>
-        </div>
-    </header>
+    <!-- Lovable-style Layout: Sidebar + Split View -->
+    <div class="app-container">
 
-    <!-- Main Content -->
-    <main class="main">
-        <div class="container">
-            <!-- Hero Section -->
-            <section class="hero">
-                <h1 class="hero-title">Build Anything with AI Agents</h1>
-                <p class="hero-subtitle">Choose an agent, describe your task, and watch AI build it for you</p>
-            </section>
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">✨</span>
+                    <span class="logo-text">Agentic</span>
+                </div>
+            </div>
 
             <!-- Agent Selection -->
-            <section class="agents-section">
-                <h2 class="section-title">Choose Your Agent</h2>
-                <div class="agents-grid" id="agentsGrid">
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Choose Agent</div>
+                <div class="agents-list" id="agentsList">
                     <!-- Agents will be loaded here -->
-                    <div class="agent-card-skeleton"></div>
-                    <div class="agent-card-skeleton"></div>
-                    <div class="agent-card-skeleton"></div>
+                    <div class="agent-skeleton"></div>
+                    <div class="agent-skeleton"></div>
+                    <div class="agent-skeleton"></div>
                 </div>
-            </section>
+            </div>
 
-            <!-- Task Input -->
-            <section class="task-section" id="taskSection" style="display: none;">
-                <div class="task-container">
-                    <div class="task-header">
-                        <div class="selected-agent-info">
-                            <span class="selected-agent-icon" id="selectedAgentIcon">🤖</span>
+            <!-- Recent Sessions -->
+            <div class="sidebar-section sidebar-section-grow">
+                <div class="sidebar-section-title">Recent</div>
+                <div class="sessions-list" id="sessionsList">
+                    <div class="empty-state-small">
+                        <span class="empty-icon-small">📝</span>
+                        <p>No sessions</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Footer -->
+            <div class="sidebar-footer">
+                <button class="sidebar-btn" onclick="toggleTheme()">
+                    <span id="themeIcon">🌙</span>
+                    <span>Dark Mode</span>
+                </button>
+                <button class="sidebar-btn" onclick="showSettings()">
+                    <span>⚙️</span>
+                    <span>Settings</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Split View -->
+        <main class="main-content">
+
+            <!-- Left Panel: Chat/Input -->
+            <div class="left-panel">
+                <!-- Welcome Screen -->
+                <div class="welcome-screen" id="welcomeScreen">
+                    <div class="welcome-content">
+                        <h1 class="welcome-title">
+                            Build Anything<br/>
+                            <span class="gradient-text">with AI Agents</span>
+                        </h1>
+                        <p class="welcome-subtitle">
+                            Select an agent from the sidebar to get started
+                        </p>
+                        <div class="welcome-features">
+                            <div class="feature-pill">🚀 Build SaaS Apps</div>
+                            <div class="feature-pill">🌐 Automate Tasks</div>
+                            <div class="feature-pill">📊 Analyze Data</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Interface -->
+                <div class="chat-interface" id="chatInterface" style="display: none;">
+                    <!-- Chat Header -->
+                    <div class="chat-header">
+                        <div class="selected-agent-badge">
+                            <span class="agent-badge-icon" id="chatAgentIcon">🤖</span>
                             <div>
-                                <h3 id="selectedAgentName">Platform Agent</h3>
-                                <p id="selectedAgentDesc">General-purpose agent</p>
+                                <div class="agent-badge-name" id="chatAgentName">Platform Agent</div>
+                                <div class="agent-badge-status">Ready to help</div>
                             </div>
                         </div>
-                        <button class="btn-text" onclick="changeAgent()">Change Agent</button>
-                    </div>
-
-                    <div class="task-input-container">
-                        <textarea
-                            id="taskPrompt"
-                            class="task-input"
-                            placeholder="Describe what you want to build...
-
-Examples:
-• Build a SaaS app for project management with Stripe subscriptions
-• Scrape data from a website and create visualizations
-• Analyze sales data and create charts
-• Search for AI news and summarize the top articles"
-                            rows="6"
-                        ></textarea>
-
-                        <div class="task-controls">
-                            <div class="task-options">
-                                <label class="option-label">
-                                    Max Steps:
-                                    <select id="maxSteps" class="option-select">
-                                        <option value="10">10</option>
-                                        <option value="20" selected>20</option>
-                                        <option value="30">30</option>
-                                        <option value="50">50</option>
-                                    </select>
-                                </label>
-                            </div>
-                            <button class="btn-primary btn-large" onclick="startTask()" id="startBtn">
-                                <span>🚀 Start Building</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Output Section -->
-            <section class="output-section" id="outputSection" style="display: none;">
-                <div class="output-container">
-                    <div class="output-header">
-                        <h3>Agent Output</h3>
-                        <div class="output-controls">
-                            <span class="status-badge" id="statusBadge">Running</span>
-                            <button class="btn-text btn-icon" onclick="stopTask()">
-                                <span>⏹</span> Stop
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="output-content" id="outputContent">
-                        <!-- Output will appear here -->
-                    </div>
-
-                    <div class="output-footer" id="outputFooter" style="display: none;">
-                        <div class="output-stats">
-                            <span id="stepsUsed">Steps: 0/20</span>
-                            <span id="agentState">State: Running</span>
-                        </div>
-                        <button class="btn-primary" onclick="resetTask()">
-                            Start New Task
+                        <button class="icon-btn" onclick="clearChat()" title="New chat">
+                            <span>🗑️</span>
                         </button>
                     </div>
-                </div>
-            </section>
 
-            <!-- Sessions List -->
-            <section class="sessions-section" id="sessionsSection">
-                <h2 class="section-title">Recent Sessions</h2>
-                <div class="sessions-list" id="sessionsList">
-                    <div class="empty-state">
-                        <span class="empty-icon">📝</span>
-                        <p>No sessions yet. Start a task to begin!</p>
+                    <!-- Chat Messages -->
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="system-message">
+                            <div class="message-icon">💡</div>
+                            <div class="message-content">
+                                <strong>How can I help you today?</strong>
+                                <p>Describe what you want to build, and I'll create it for you.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="chat-input-container">
+                        <div class="chat-input-wrapper">
+                            <textarea
+                                id="chatInput"
+                                class="chat-input"
+                                placeholder="Describe what you want to build..."
+                                rows="3"
+                                onkeydown="handleChatKeydown(event)"
+                            ></textarea>
+                            <div class="chat-input-actions">
+                                <div class="input-options">
+                                    <select id="maxSteps" class="steps-select">
+                                        <option value="10">10 steps</option>
+                                        <option value="20" selected>20 steps</option>
+                                        <option value="30">30 steps</option>
+                                        <option value="50">50 steps</option>
+                                    </select>
+                                </div>
+                                <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                                    <span class="send-btn-text">Send</span>
+                                    <span class="send-btn-icon">→</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </section>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 Agentic Platform. Built with ❤️ for developers.</p>
-            <div class="footer-links">
-                <a href="https://github.com/yourusername/agentic-platform">GitHub</a>
-                <a href="/docs">Documentation</a>
-                <a href="/api/health">API Status</a>
             </div>
-        </div>
-    </footer>
 
-    <!-- About Modal -->
-    <div class="modal" id="aboutModal" style="display: none;">
+            <!-- Resizer -->
+            <div class="panel-resizer" id="resizer"></div>
+
+            <!-- Right Panel: Output/Preview -->
+            <div class="right-panel">
+                <!-- Tabs -->
+                <div class="tabs-header">
+                    <button class="tab active" data-tab="output" onclick="switchTab('output')">
+                        <span>📋</span> Output
+                    </button>
+                    <button class="tab" data-tab="files" onclick="switchTab('files')">
+                        <span>📁</span> Files
+                    </button>
+                    <button class="tab" data-tab="preview" onclick="switchTab('preview')">
+                        <span>🖥️</span> Preview
+                    </button>
+                </div>
+
+                <!-- Tab Content: Output -->
+                <div class="tab-content active" id="outputTab">
+                    <div class="output-container">
+                        <div class="empty-output">
+                            <div class="empty-output-icon">⚡</div>
+                            <p>Output will appear here</p>
+                        </div>
+                        <div class="output-messages" id="outputMessages"></div>
+                    </div>
+                </div>
+
+                <!-- Tab Content: Files -->
+                <div class="tab-content" id="filesTab">
+                    <div class="files-container">
+                        <div class="empty-output">
+                            <div class="empty-output-icon">📁</div>
+                            <p>Generated files will appear here</p>
+                        </div>
+                        <div class="file-tree" id="fileTree"></div>
+                    </div>
+                </div>
+
+                <!-- Tab Content: Preview -->
+                <div class="tab-content" id="previewTab">
+                    <div class="preview-container">
+                        <div class="empty-output">
+                            <div class="empty-output-icon">🖼️</div>
+                            <p>Live preview will appear here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal" style="display: none;">
+        <div class="modal-overlay" onclick="closeSettings()"></div>
         <div class="modal-content">
             <div class="modal-header">
-                <h2>About Agentic Platform</h2>
-                <button class="modal-close" onclick="closeAbout()">&times;</button>
+                <h2>Settings</h2>
+                <button class="modal-close" onclick="closeSettings()">×</button>
             </div>
             <div class="modal-body">
-                <p>Agentic Platform is a powerful AI agent framework that can:</p>
-                <ul>
-                    <li>🚀 Build complete SaaS applications</li>
-                    <li>🌐 Automate browser tasks and web scraping</li>
-                    <li>📊 Analyze data and create visualizations</li>
-                    <li>🔌 Integrate with external tools via MCP</li>
-                    <li>🤖 Handle any general-purpose task</li>
-                </ul>
-                <p><strong>Version:</strong> 1.0.0</p>
-                <p><strong>Agents:</strong> 5 specialized agents</p>
-                <p><strong>Tools:</strong> 20+ integrated tools</p>
+                <div class="setting-group">
+                    <label>Theme</label>
+                    <select class="setting-select" onchange="changeTheme(this.value)">
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                        <option value="system">System</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label>Default Max Steps</label>
+                    <select class="setting-select">
+                        <option value="10">10</option>
+                        <option value="20" selected>20</option>
+                        <option value="30">30</option>
+                        <option value="50">50</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label>Auto-scroll Output</label>
+                    <input type="checkbox" checked>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeSettings()">Close</button>
             </div>
         </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>Processing...</p>
     </div>
 
     <script src="/ui/assets/js/app.js"></script>
