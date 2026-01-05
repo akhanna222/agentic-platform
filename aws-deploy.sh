@@ -194,10 +194,17 @@ print_header "Step 6: Testing OpenAI Connection"
 
 python3 << 'EOF'
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
-api_key = os.getenv('OPENAI_API_KEY')
+# Read .env file manually to avoid AssertionError in heredoc
+api_key = None
+try:
+    with open('.env', 'r') as f:
+        for line in f:
+            if line.startswith('OPENAI_API_KEY='):
+                api_key = line.split('=', 1)[1].strip()
+                break
+except FileNotFoundError:
+    pass
 
 if api_key and api_key != 'your-openai-api-key-here':
     print(f"✓ API Key configured: {api_key[:10]}...{api_key[-4:]}")
