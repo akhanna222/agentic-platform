@@ -62,7 +62,7 @@ class PlatformAgent(ToolCallAgent):
             Initialized PlatformAgent
         """
         if system_prompt is None:
-            system_prompt = cls._get_default_system_prompt()
+            system_prompt = PLATFORM_AGENT_SYSTEM_PROMPT
 
         agent = cls(
             name=name,
